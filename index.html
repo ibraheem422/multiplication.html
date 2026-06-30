@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -261,7 +262,7 @@
   button.action:active { transform: scale(0.97); }
 
   #submit { background: #e94560; color: #fff; }
-  #submit:hover:not(:disabled) { background: #c73652; transform: scale(1.04); }
+  #submit:hover:not(:enabled) { background: #c73652; transform: scale(1.04); }
 
   #reset {
     background: transparent;
@@ -277,12 +278,23 @@
   #next { background: #a8dadc; color: #1a1a2e; }
   #next:hover:not(:disabled) { background: #7fc1c4; transform: scale(1.04); }
 
-  button.action:disabled {
+  #end-practice {
+    background: transparent;
+    color: #e94560;
+    border: 2px solid #e94560;
+  }
+  #end-practice:hover:not(:disabled) {
+    background: #e94560;
+    color: #fff;
+    transform: scale(1.04);
+  }
+
+  button.action:enable {
     background: #0f3460;
     color: #555;
-    cursor: not-allowed;
+    cursor: allowed;
   }
-  #reset:disabled {
+  #reset:enabled {
     background: transparent;
     color: #444;
     border-color: #0f3460;
@@ -413,6 +425,264 @@
     line-height: 1.5;
   }
 
+  .hidden { display: none !important; }
+
+  #auth-screen {
+    width: 100%;
+    min-height: calc(100vh - 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-card {
+    width: min(100%, 420px);
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  }
+
+  .auth-card h1 {
+    margin-bottom: 0.35rem;
+  }
+
+  .auth-subtitle {
+    color: #888;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .auth-field label,
+  .remember-row {
+    color: #aaa;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .auth-field input {
+    width: 100%;
+    background: #1a1a2e;
+    border: 2px solid #0f3460;
+    border-radius: 8px;
+    color: #eee;
+    font-size: 1rem;
+    padding: 0.75rem 0.85rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .auth-field input:focus {
+    border-color: #e94560;
+    box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.12);
+  }
+
+  .remember-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .remember-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: #e94560;
+  }
+
+  .auth-error {
+    min-height: 1.2em;
+    color: #e94560;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .auth-primary,
+  .auth-link {
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, border-color 0.2s, color 0.2s;
+  }
+
+  .auth-primary {
+    background: #e94560;
+    color: #fff;
+    border: none;
+  }
+
+  .auth-primary:hover { background: #c73652; transform: scale(1.02); }
+
+  .auth-link {
+    background: transparent;
+    color: #a8dadc;
+    border: 2px solid #0f3460;
+  }
+
+  .auth-link:hover {
+    border-color: #a8dadc;
+    color: #fff;
+    transform: scale(1.02);
+  }
+
+  #game-screen {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-panel {
+    width: min(100%, 780px);
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .user-panel-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  #welcome-user {
+    color: #a8dadc;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  #logout {
+    background: transparent;
+    color: #e94560;
+    border: 2px solid #e94560;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+  }
+
+  #logout:hover {
+    background: #e94560;
+    color: #fff;
+    transform: scale(1.03);
+  }
+
+  .user-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .stat-box {
+    background: #1a1a2e;
+    border: 2px solid #0f3460;
+    border-radius: 8px;
+    padding: 0.65rem;
+    text-align: center;
+  }
+
+  .stat-box .label {
+    color: #888;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  .stat-box .val {
+    color: #e94560;
+    font-size: 1.35rem;
+    font-weight: bold;
+  }
+
+  .home-panel {
+    width: min(100%, 780px);
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .home-panel h2 {
+    color: #a8dadc;
+    font-size: 1.35rem;
+    margin-bottom: 0.6rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .home-panel p {
+    color: #888;
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+  }
+
+  #start-practice {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 0.75rem 2rem;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  #start-practice:hover {
+    background: #c73652;
+    transform: scale(1.03);
+  }
+
+  @media (max-width: 640px) {
+    .user-panel-top {
+      align-items: stretch;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .user-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   /* ---------- Digital (LCD-style) display mode ---------- */
   body.digital .cell,
   body.digital .carry,
@@ -454,42 +724,136 @@
 </head>
 <body>
 
-<h1>Multiplication</h1>
+<div id="auth-screen">
+  <div class="auth-card">
+    <div id="login-panel">
+      <h1>Login</h1>
+      <p class="auth-subtitle">Sign in to play Multiplication Practice.</p>
+      <form class="auth-form" id="login-form" novalidate>
+        <div class="auth-field">
+          <label for="login-username">Username</label>
+          <input id="login-username" type="text" autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password">
+        </div>
+        <label class="remember-row" for="remember-me">
+          <input id="remember-me" type="checkbox">
+          Remember Me
+        </label>
+        <div class="auth-error" id="login-error" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-primary" type="submit">Login</button>
+          <button class="auth-link" id="show-signup" type="button">Create Account</button>
+        </div>
+      </form>
+    </div>
 
-<div id="display-toggle">
-  <button class="mode-btn active" id="btn-std" type="button">Standard</button>
-  <button class="mode-btn" id="btn-digital" type="button">Digital</button>
-</div>
-
-<div class="header">
-  <div class="score-box">
-    <div class="label">Question</div>
-    <div class="val"><span id="qnum">1</span><span class="of"> / 10</span></div>
+    <div id="signup-panel" class="hidden">
+      <h1>Sign Up</h1>
+      <p class="auth-subtitle">Create a local account for your scores.</p>
+      <form class="auth-form" id="signup-form" novalidate>
+        <div class="auth-field">
+          <label for="signup-username">Username</label>
+          <input id="signup-username" type="text" autocomplete="username">
+        </div>
+        <div class="auth-field">
+          <label for="signup-password">Password</label>
+          <input id="signup-password" type="password" autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label for="signup-confirm">Confirm Password</label>
+          <input id="signup-confirm" type="password" autocomplete="new-password">
+        </div>
+        <div class="auth-error" id="signup-error" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-primary" type="submit">Sign Up</button>
+          <button class="auth-link" id="show-login" type="button">Back to Login</button>
+        </div>
+      </form>
+    </div>
   </div>
-  <div class="score-box total">
-    <div class="label">Score</div>
-    <div class="val"><span id="score">0</span></div>
+</div>
+
+<div id="game-screen" class="hidden">
+  <h1 id="game-title">Multiplication</h1>
+
+  <div class="user-panel" id="user-panel">
+    <div class="user-panel-top">
+      <div id="welcome-user">Welcome</div>
+      <button id="logout" type="button">Logout</button>
+    </div>
+    <div class="user-stats">
+      <div class="stat-box">
+        <div class="label">High Score</div>
+        <div class="val" id="stat-high-score">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Games Played</div>
+        <div class="val" id="stat-games-played">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Last Score</div>
+        <div class="val" id="stat-last-score">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Average Score</div>
+        <div class="val" id="stat-average-score">0</div>
+      </div>
+    </div>
   </div>
+
+  <div id="home-panel" class="home-panel">
+    <h2>Ready to Practice?</h2>
+    <p>Start a 10-question multiplication round when you are ready.</p>
+    <button id="start-practice" type="button">Start Practice</button>
+  </div>
+
+  <div id="game-content" class="hidden">
+    <div id="display-toggle">
+      <button class="mode-btn active" id="btn-std" type="button">Standard</button>
+      <button class="mode-btn" id="btn-digital" type="button">Digital</button>
+    </div>
+
+    <div class="header">
+      <div class="score-box">
+        <div class="label">Question</div>
+        <div class="val"><span id="qnum">1</span><span class="of"> / 10</span></div>
+      </div>
+      <div class="score-box total">
+        <div class="label">Score</div>
+        <div class="val"><span id="score">0</span></div>
+      </div>
+    </div>
+
+    <div class="worksheet" id="worksheet"></div>
+
+    <div class="controls">
+      <button class="action" id="submit">Submit</button>
+      <button class="action" id="reset">Reset</button>
+      <button class="action" id="next" disabled>Next &#9654;</button>
+      <button class="action" id="end-practice" type="button">End Practice</button>
+    </div>
+
+    <div id="feedback"></div>
+
+    <p class="hint">Tap any box or circle to open the dialer. Pick a digit, pick <strong style="color:#f1c40f">X</strong> for a placeholder, or use <strong style="color:#e94560">&larr;</strong> to remove the value. The rightmost slot on the second partial row is the shift-placeholder &mdash; mark it X. Only the bottom answer row is graded.</p>
+  </div>
+
+  <div id="gameover" class="hidden"></div>
 </div>
-
-<div class="worksheet" id="worksheet"></div>
-
-<div class="controls">
-  <button class="action" id="submit">Submit</button>
-  <button class="action" id="reset">Reset</button>
-  <button class="action" id="next" disabled>Next &#9654;</button>
-</div>
-
-<div id="feedback"></div>
-
-<p class="hint">Tap any box or circle to open the dialer. Pick a digit, pick <strong style="color:#f1c40f">X</strong> for a placeholder, or use <strong style="color:#e94560">&larr;</strong> to remove the value. The rightmost slot on the second partial row is the shift-placeholder &mdash; mark it X. Only the bottom answer row is graded.</p>
 
 <div id="dialer"></div>
 
 <script>
 (() => {
+  const USERS_KEY = 'multiplicationGameUsers';
+  const CURRENT_USER_KEY = 'multiplicationGameCurrentUser';
+  const REMEMBER_USER_KEY = 'multiplicationGameRememberedUser';
   const TOTAL = 10;
   const questions = [];
+  let currentUserKey = null;
   let qIdx = 0;
   let score = 0;
   let userAnswer = [];     // 5 slots, left -> right = 10000s..ones
@@ -501,12 +865,242 @@
   let showAddCarry = false; // addition carries hidden until the adding step begins
   let submitted = false;
 
+  function normalizeUsername(username) {
+    return username.trim().toLowerCase();
+  }
+
+  function getUsers() {
+    try {
+      return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+
+  function getCurrentUser() {
+    if (!currentUserKey) return null;
+    const users = getUsers();
+    return users[currentUserKey] || null;
+  }
+
+  function saveCurrentUser(user) {
+    if (!currentUserKey || !user) return;
+    const users = getUsers();
+    users[currentUserKey] = user;
+    saveUsers(users);
+  }
+
+  function setAuthError(id, message) {
+    document.getElementById(id).textContent = message;
+  }
+
+  function showLogin() {
+    document.getElementById('signup-panel').classList.add('hidden');
+    document.getElementById('login-panel').classList.remove('hidden');
+    setAuthError('login-error', '');
+    setAuthError('signup-error', '');
+  }
+
+  function showSignup() {
+    document.getElementById('login-panel').classList.add('hidden');
+    document.getElementById('signup-panel').classList.remove('hidden');
+    setAuthError('login-error', '');
+    setAuthError('signup-error', '');
+  }
+
+  function updateUserPanel() {
+    const user = getCurrentUser();
+    if (!user) return;
+    document.getElementById('welcome-user').textContent = 'Welcome, ' + user.username;
+    document.getElementById('stat-high-score').textContent = user.highScore;
+    document.getElementById('stat-games-played').textContent = user.gamesPlayed;
+    document.getElementById('stat-last-score').textContent = user.lastScore;
+    document.getElementById('stat-average-score').textContent = Number(user.averageScore).toFixed(1);
+  }
+
+  function showAuthScreen() {
+    closeDialer();
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.body.style.justifyContent = 'flex-start';
+    showLogin();
+  }
+
+  function showGameScreen() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    document.body.style.justifyContent = 'flex-start';
+    updateUserPanel();
+    showHomeScreen();
+  }
+
+  function showHomeScreen() {
+    closeDialer();
+    document.getElementById('game-title').classList.remove('hidden');
+    document.getElementById('user-panel').classList.remove('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+    document.getElementById('game-content').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    document.getElementById('gameover').innerHTML = '';
+    document.body.style.justifyContent = 'flex-start';
+  }
+
+  function loginUser(userKey, remember) {
+    const users = getUsers();
+    const user = users[userKey];
+    if (!user) return;
+    currentUserKey = userKey;
+    user.lastLogin = new Date().toISOString();
+    users[userKey] = user;
+    saveUsers(users);
+    localStorage.setItem(CURRENT_USER_KEY, userKey);
+    if (remember) {
+      localStorage.setItem(REMEMBER_USER_KEY, userKey);
+    } else {
+      localStorage.removeItem(REMEMBER_USER_KEY);
+    }
+    showGameScreen();
+  }
+
+  function handleSignup(e) {
+    e.preventDefault();
+    const username = document.getElementById('signup-username').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-confirm').value;
+    const userKey = normalizeUsername(username);
+
+    if (!username) {
+      setAuthError('signup-error', 'Username is required.');
+      return;
+    }
+    if (!password) {
+      setAuthError('signup-error', 'Password is required.');
+      return;
+    }
+    if (!confirm) {
+      setAuthError('signup-error', 'Please confirm your password.');
+      return;
+    }
+    if (password !== confirm) {
+      setAuthError('signup-error', 'Passwords do not match.');
+      return;
+    }
+
+    const users = getUsers();
+    if (users[userKey]) {
+      setAuthError('signup-error', 'That username is already taken.');
+      return;
+    }
+
+    users[userKey] = {
+      username,
+      password,
+      createdAt: new Date().toISOString(),
+      lastLogin: null,
+      gamesPlayed: 0,
+      highScore: 0,
+      lastScore: 0,
+      totalScore: 0,
+      averageScore: 0
+    };
+    saveUsers(users);
+    document.getElementById('signup-form').reset();
+    document.getElementById('login-username').value = username;
+    document.getElementById('login-password').value = '';
+    showLogin();
+    setAuthError('login-error', 'Account created. Please log in.');
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember-me').checked;
+    const userKey = normalizeUsername(username);
+
+    if (!username) {
+      setAuthError('login-error', 'Username is required.');
+      return;
+    }
+    if (!password) {
+      setAuthError('login-error', 'Password is required.');
+      return;
+    }
+
+    const users = getUsers();
+    if (!users[userKey] || users[userKey].password !== password) {
+      setAuthError('login-error', 'Invalid username or password.');
+      return;
+    }
+
+    document.getElementById('login-form').reset();
+    loginUser(userKey, remember);
+  }
+
+  function handleLogout() {
+    updateUserPanel();
+    const rememberedUser = localStorage.getItem(REMEMBER_USER_KEY);
+    localStorage.removeItem(CURRENT_USER_KEY);
+    if (rememberedUser !== currentUserKey) {
+      localStorage.removeItem(REMEMBER_USER_KEY);
+    }
+    currentUserKey = null;
+    document.getElementById('login-form').reset();
+    showAuthScreen();
+  }
+
+  function completeGameForCurrentUser(finalScore) {
+    const user = getCurrentUser();
+    if (!user) return;
+    user.gamesPlayed += 1;
+    user.lastScore = finalScore;
+    user.highScore = Math.max(user.highScore, finalScore);
+    user.totalScore += finalScore;
+    user.averageScore = user.gamesPlayed ? user.totalScore / user.gamesPlayed : 0;
+    saveCurrentUser(user);
+    updateUserPanel();
+  }
+
   function genQuestion() {
     const a = 100 + Math.floor(Math.random() * 900); // 100..999
     const b = 10 + Math.floor(Math.random() * 90);   // 10..99
     return { a, b, product: a * b };
   }
-  for (let i = 0; i < TOTAL; i++) questions.push(genQuestion());
+
+  function buildQuestions() {
+    questions.length = 0;
+    for (let i = 0; i < TOTAL; i++) questions.push(genQuestion());
+  }
+
+  function startNewGame() {
+    buildQuestions();
+    qIdx = 0;
+    score = 0;
+    resetSlots();
+    document.body.style.justifyContent = 'flex-start';
+    const fb = document.getElementById('feedback');
+    fb.textContent = '';
+    fb.className = '';
+    document.getElementById('game-title').classList.add('hidden');
+    document.getElementById('user-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('game-content').classList.remove('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    document.getElementById('gameover').innerHTML = '';
+    render();
+  }
+
+  function endPractice() {
+    resetSlots();
+    const fb = document.getElementById('feedback');
+    fb.textContent = '';
+    fb.className = '';
+    showHomeScreen();
+  }
 
   function resetSlots() {
     userAnswer = Array(5).fill(null);
@@ -751,25 +1345,39 @@
   }
 
   function showGameOver() {
+    completeGameForCurrentUser(score);
     const pct = Math.round((score / TOTAL) * 100);
     let msg = 'Nice work!';
     if (pct === 100) msg = 'Perfect score!';
     else if (pct >= 70) msg = 'Great job!';
     else if (pct >= 40) msg = 'Keep practicing!';
     else msg = 'Try again!';
-    document.body.innerHTML =
-      '<div id="gameover">' +
-        '<h1>All Done</h1>' +
-        '<div class="final-score">Final Score <strong>' + score + '</strong> / ' + TOTAL + '</div>' +
-        '<div class="gameover-msg">' + msg + '</div>' +
-        '<button onclick="location.reload()">Play Again</button>' +
-      '</div>';
+    closeDialer();
+    document.getElementById('game-title').classList.remove('hidden');
+    document.getElementById('user-panel').classList.remove('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('game-content').classList.add('hidden');
+    const gameover = document.getElementById('gameover');
+    gameover.classList.remove('hidden');
+    gameover.innerHTML =
+      '<h1>All Done</h1>' +
+      '<div class="final-score">Final Score <strong>' + score + '</strong> / ' + TOTAL + '</div>' +
+      '<div class="gameover-msg">' + msg + '</div>' +
+      '<button id="play-again" type="button">Play Again</button>';
+    document.getElementById('play-again').addEventListener('click', startNewGame);
     document.body.style.justifyContent = 'center';
   }
 
+  document.getElementById('login-form').addEventListener('submit', handleLogin);
+  document.getElementById('signup-form').addEventListener('submit', handleSignup);
+  document.getElementById('show-signup').addEventListener('click', showSignup);
+  document.getElementById('show-login').addEventListener('click', showLogin);
+  document.getElementById('logout').addEventListener('click', handleLogout);
+  document.getElementById('start-practice').addEventListener('click', startNewGame);
   document.getElementById('submit').addEventListener('click', onSubmit);
   document.getElementById('reset').addEventListener('click', onReset);
   document.getElementById('next').addEventListener('click', onNext);
+  document.getElementById('end-practice').addEventListener('click', endPractice);
 
   document.getElementById('btn-std').addEventListener('click', () => {
     document.body.classList.remove('digital');
@@ -782,8 +1390,15 @@
     document.getElementById('btn-std').classList.remove('active');
   });
 
-  resetSlots();
-  render();
+  const rememberedUser = localStorage.getItem(REMEMBER_USER_KEY);
+  const users = getUsers();
+  if (rememberedUser && users[rememberedUser]) {
+    loginUser(rememberedUser, true);
+  } else {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(REMEMBER_USER_KEY);
+    showAuthScreen();
+  }
 })();
 </script>
 </body>
