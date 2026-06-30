@@ -1,0 +1,790 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplication Practice</title>
+<style>
+  /* 7-segment LCD font for Digital mode (keshikan/DSEG via jsDelivr).
+     Falls back to monospace if offline. */
+  @font-face {
+    font-family: 'DSEG7 Classic';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/keshikan/DSEG@master/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'DSEG7 Classic';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/keshikan/DSEG@master/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2') format('woff2');
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: #1a1a2e;
+    font-family: 'Segoe UI', sans-serif;
+    color: #eee;
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #e94560;
+    text-align: center;
+  }
+
+  #display-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .mode-btn {
+    padding: 0.4rem 1.1rem;
+    border-radius: 20px;
+    border: 2px solid #0f3460;
+    background: #16213e;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover:not(.active) { color: #eee; border-color: #a8dadc; }
+  .mode-btn.active {
+    background: #0f3460;
+    color: #fff;
+    border-color: #e94560;
+  }
+
+  .header {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .score-box {
+    text-align: center;
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 10px;
+    padding: 0.5rem 1.2rem;
+    min-width: 130px;
+  }
+
+  .score-box .label {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .score-box .val {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #e94560;
+  }
+
+  .score-box.total .val { color: #a8dadc; }
+  .score-box .of { color: #666; font-size: 1rem; font-weight: normal; }
+
+  .worksheet {
+    background: #16213e;
+    border: 2px solid #0f3460;
+    padding: 1.75rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(6, 54px);
+    grid-auto-rows: minmax(0, auto);
+    gap: 6px;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .cell {
+    width: 54px;
+    height: 54px;
+    background: #1a1a2e;
+    border: 2px solid #0f3460;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #eee;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  }
+
+  .cell:hover:not(.fixed):not(.op):not(.locked) {
+    background: #0f3460;
+    border-color: #e94560;
+    transform: scale(1.05);
+  }
+
+  .cell.filled { color: #a8dadc; }
+  .cell.x-value { color: #f1c40f; }
+
+  .cell.fixed {
+    border: none;
+    background: transparent;
+    cursor: default;
+    color: #a8dadc;
+  }
+
+  .cell.op {
+    border: none;
+    background: transparent;
+    cursor: default;
+    color: #e94560;
+    font-size: 1.9rem;
+  }
+
+  .cell.answer-correct {
+    background: rgba(46, 204, 113, 0.18) !important;
+    border-color: #2ecc71 !important;
+    color: #2ecc71 !important;
+    animation: pulse 0.5s ease-in-out;
+  }
+
+  .cell.answer-wrong {
+    background: rgba(233, 69, 96, 0.18) !important;
+    border-color: #e94560 !important;
+    color: #e94560 !important;
+  }
+
+  .cell.locked { cursor: not-allowed; }
+
+  @keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  .carry {
+    width: 38px;
+    height: 38px;
+    border: 2px dashed #e94560;
+    border-radius: 50%;
+    background: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #e94560;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, transform 0.1s, border-style 0.15s;
+  }
+
+  .carry:hover:not(.locked) {
+    background: #0f3460;
+    border-style: solid;
+    transform: scale(1.1);
+  }
+
+  .carry.locked { cursor: not-allowed; opacity: 0.7; }
+  .carry.x-value { color: #f1c40f; border-color: #f1c40f; }
+  /* addition carries: cyan, to distinguish from red multiplication carries */
+  .carry.add { color: #48cae4; border-color: #48cae4; }
+  .carry.add:hover:not(.locked) { background: #023e58; }
+  .carry.add.x-value { color: #f1c40f; border-color: #f1c40f; }
+
+  /* toggle to reveal/hide the addition carries when the adding step begins */
+  .carry-toggle {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    line-height: 1;
+    border-radius: 50%;
+    border: 2px solid #48cae4;
+    background: #1a1a2e;
+    color: #48cae4;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .carry-toggle:hover { background: #023e58; transform: scale(1.1); }
+  .carry-toggle.active { background: #023e58; }
+
+  .line-row {
+    height: 0;
+    border-top: 3px solid #a8dadc;
+    width: 100%;
+    margin: 2px 0;
+  }
+
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  button.action {
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, transform 0.1s, border-color 0.2s, color 0.2s;
+  }
+
+  button.action:active { transform: scale(0.97); }
+
+  #submit { background: #e94560; color: #fff; }
+  #submit:hover:not(:disabled) { background: #c73652; transform: scale(1.04); }
+
+  #reset {
+    background: transparent;
+    color: #aaa;
+    border: 2px solid #0f3460;
+  }
+  #reset:hover:not(:disabled) {
+    border-color: #e94560;
+    color: #e94560;
+    transform: scale(1.04);
+  }
+
+  #next { background: #a8dadc; color: #1a1a2e; }
+  #next:hover:not(:disabled) { background: #7fc1c4; transform: scale(1.04); }
+
+  button.action:disabled {
+    background: #0f3460;
+    color: #555;
+    cursor: not-allowed;
+  }
+  #reset:disabled {
+    background: transparent;
+    color: #444;
+    border-color: #0f3460;
+  }
+
+  #feedback {
+    min-height: 1.6em;
+    margin-top: 1rem;
+    font-size: 1.05rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .feedback-correct {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    border: 2px solid #2ecc71;
+  }
+
+  .feedback-wrong {
+    background: rgba(233, 69, 96, 0.15);
+    color: #e94560;
+    border: 2px solid #e94560;
+  }
+
+  #dialer {
+    position: fixed;
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 10px;
+    padding: 0.6rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    display: none;
+    grid-template-columns: repeat(3, 50px);
+    gap: 6px;
+    z-index: 200;
+  }
+
+  #dialer button {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #1a1a2e;
+    color: #a8dadc;
+    border: 2px solid #0f3460;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s, transform 0.08s, border-color 0.1s, color 0.1s;
+  }
+  #dialer button:hover {
+    background: #0f3460;
+    border-color: #e94560;
+    color: #fff;
+  }
+  #dialer button:active { transform: scale(0.94); }
+
+  #dialer button.x-btn { color: #f1c40f; border-color: #0f3460; }
+  #dialer button.x-btn:hover {
+    background: #f1c40f;
+    color: #1a1a2e;
+    border-color: #f1c40f;
+  }
+
+  #dialer button.back-btn {
+    background: #e94560;
+    border-color: #e94560;
+    color: #fff;
+    font-size: 1.3rem;
+  }
+  #dialer button.back-btn:hover { background: #c73652; border-color: #c73652; }
+
+  #gameover {
+    text-align: center;
+    padding: 2.5rem 3rem;
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 12px;
+    color: #eee;
+    margin-top: 2rem;
+  }
+
+  #gameover h1 { font-size: 2rem; margin-bottom: 1rem; }
+
+  #gameover .final-score {
+    font-size: 1.3rem;
+    margin: 1rem 0;
+    color: #a8dadc;
+  }
+
+  #gameover .final-score strong {
+    color: #e94560;
+    font-size: 2.5rem;
+    margin: 0 0.3rem;
+  }
+
+  #gameover .gameover-msg {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+  }
+
+  #gameover button {
+    background: #e94560;
+    color: #fff;
+    padding: 0.6rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  #gameover button:hover { background: #c73652; transform: scale(1.04); }
+
+  .hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.9rem;
+    text-align: center;
+    max-width: 460px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Digital (LCD-style) display mode ---------- */
+  body.digital .cell,
+  body.digital .carry,
+  body.digital #dialer button,
+  body.digital .score-box .val {
+    font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+    letter-spacing: 1px;
+  }
+
+  body.digital .cell.filled,
+  body.digital .cell.fixed {
+    text-shadow: 0 0 4px #a8dadc, 0 0 12px rgba(168, 218, 220, 0.55);
+  }
+
+  body.digital .cell.op,
+  body.digital .carry {
+    text-shadow: 0 0 4px #e94560, 0 0 12px rgba(233, 69, 96, 0.55);
+  }
+
+  body.digital .cell.x-value,
+  body.digital .carry.x-value {
+    text-shadow: 0 0 4px #f1c40f, 0 0 12px rgba(241, 196, 15, 0.55);
+  }
+  body.digital .carry.add {
+    text-shadow: 0 0 4px #48cae4, 0 0 12px rgba(72, 202, 228, 0.55);
+  }
+
+  body.digital .cell.answer-correct {
+    text-shadow: 0 0 4px #2ecc71, 0 0 12px rgba(46, 204, 113, 0.55);
+  }
+  body.digital .cell.answer-wrong {
+    text-shadow: 0 0 4px #e94560, 0 0 12px rgba(233, 69, 96, 0.55);
+  }
+
+  body.digital .score-box .val {
+    text-shadow: 0 0 4px currentColor, 0 0 12px currentColor;
+  }
+</style>
+</head>
+<body>
+
+<h1>Multiplication</h1>
+
+<div id="display-toggle">
+  <button class="mode-btn active" id="btn-std" type="button">Standard</button>
+  <button class="mode-btn" id="btn-digital" type="button">Digital</button>
+</div>
+
+<div class="header">
+  <div class="score-box">
+    <div class="label">Question</div>
+    <div class="val"><span id="qnum">1</span><span class="of"> / 10</span></div>
+  </div>
+  <div class="score-box total">
+    <div class="label">Score</div>
+    <div class="val"><span id="score">0</span></div>
+  </div>
+</div>
+
+<div class="worksheet" id="worksheet"></div>
+
+<div class="controls">
+  <button class="action" id="submit">Submit</button>
+  <button class="action" id="reset">Reset</button>
+  <button class="action" id="next" disabled>Next &#9654;</button>
+</div>
+
+<div id="feedback"></div>
+
+<p class="hint">Tap any box or circle to open the dialer. Pick a digit, pick <strong style="color:#f1c40f">X</strong> for a placeholder, or use <strong style="color:#e94560">&larr;</strong> to remove the value. The rightmost slot on the second partial row is the shift-placeholder &mdash; mark it X. Only the bottom answer row is graded.</p>
+
+<div id="dialer"></div>
+
+<script>
+(() => {
+  const TOTAL = 10;
+  const questions = [];
+  let qIdx = 0;
+  let score = 0;
+  let userAnswer = [];     // 5 slots, left -> right = 10000s..ones
+  let userP1 = [];          // 4 slots, x-ones partial product
+  let userP2 = [];          // 5 slots: indices 0..3 = partial digits, index 4 = shift placeholder
+  let userCarryTop = [];    // 2 slots, top carry row (above tens & ones of multiplicand)
+  let userCarryBot = [];    // 2 slots, bottom carry row
+  let userCarryAdd = [];    // 4 slots, addition carries above answer (cols 2..5)
+  let showAddCarry = false; // addition carries hidden until the adding step begins
+  let submitted = false;
+
+  function genQuestion() {
+    const a = 100 + Math.floor(Math.random() * 900); // 100..999
+    const b = 10 + Math.floor(Math.random() * 90);   // 10..99
+    return { a, b, product: a * b };
+  }
+  for (let i = 0; i < TOTAL; i++) questions.push(genQuestion());
+
+  function resetSlots() {
+    userAnswer = Array(5).fill(null);
+    userP1 = Array(4).fill(null);
+    userP2 = Array(5).fill(null);
+    userCarryTop = Array(2).fill(null);
+    userCarryBot = Array(2).fill(null);
+    userCarryAdd = Array(4).fill(null);
+    showAddCarry = false;
+    submitted = false;
+  }
+
+  function userAnswerNum() {
+    return userAnswer.reduce((acc, d, i) => {
+      const v = (d === null || d === 'X') ? 0 : d;
+      return acc + v * Math.pow(10, 4 - i);
+    }, 0);
+  }
+
+  function openDialer(e, arr, idx, onSet) {
+    const dialer = document.getElementById('dialer');
+    dialer.innerHTML = '';
+    const buttons = [
+      { label: '1', val: 1 },
+      { label: '2', val: 2 },
+      { label: '3', val: 3 },
+      { label: '4', val: 4 },
+      { label: '5', val: 5 },
+      { label: '6', val: 6 },
+      { label: '7', val: 7 },
+      { label: '8', val: 8 },
+      { label: '9', val: 9 },
+      { label: 'X', val: 'X', cls: 'x-btn' },
+      { label: '0', val: 0 },
+      { label: '←', val: null, cls: 'back-btn' }
+    ];
+    buttons.forEach(({ label, val, cls }) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      if (cls) b.className = cls;
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        arr[idx] = val;
+        closeDialer();
+        onSet();
+      });
+      dialer.appendChild(b);
+    });
+
+    dialer.style.left = '-9999px';
+    dialer.style.top = '-9999px';
+    dialer.style.display = 'grid';
+    const rect = e.currentTarget.getBoundingClientRect();
+    const dw = dialer.offsetWidth;
+    const dh = dialer.offsetHeight;
+    let left = rect.left + rect.width / 2 - dw / 2;
+    let top = rect.bottom + 8;
+    if (left + dw > window.innerWidth - 6) left = window.innerWidth - dw - 6;
+    if (left < 6) left = 6;
+    if (top + dh > window.innerHeight - 6) top = rect.top - dh - 8;
+    if (top < 6) top = 6;
+    dialer.style.left = left + 'px';
+    dialer.style.top = top + 'px';
+    e.stopPropagation();
+  }
+
+  function closeDialer() {
+    document.getElementById('dialer').style.display = 'none';
+  }
+
+  document.addEventListener('click', (e) => {
+    const dialer = document.getElementById('dialer');
+    if (dialer.style.display !== 'none' && !dialer.contains(e.target)) {
+      closeDialer();
+    }
+  });
+  window.addEventListener('resize', closeDialer);
+  window.addEventListener('scroll', closeDialer, true);
+
+  function render() {
+    const q = questions[qIdx];
+    const aDigits = String(q.a).split('');
+    const bDigits = String(q.b).split('');
+    document.getElementById('qnum').textContent = qIdx + 1;
+    document.getElementById('score').textContent = score;
+
+    const ws = document.getElementById('worksheet');
+    ws.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    ws.appendChild(grid);
+
+    const place = (el, col, row) => {
+      el.style.gridColumn = String(col);
+      el.style.gridRow = String(row);
+      grid.appendChild(el);
+      return el;
+    };
+
+    const makeCarry = (arr, idx, extra) => {
+      const c = document.createElement('div');
+      let cls = 'carry' + (extra ? ' ' + extra : '') + (submitted ? ' locked' : '');
+      if (arr[idx] === 'X') cls += ' x-value';
+      c.className = cls;
+      if (arr[idx] !== null) c.textContent = arr[idx];
+      c.addEventListener('click', (e) => {
+        if (submitted) return;
+        openDialer(e, arr, idx, render);
+      });
+      return c;
+    };
+
+    const makeFixed = (text) => {
+      const c = document.createElement('div');
+      c.className = 'cell fixed';
+      c.textContent = text;
+      return c;
+    };
+
+    const makeOp = (text) => {
+      const c = document.createElement('div');
+      c.className = 'cell op';
+      c.textContent = text;
+      return c;
+    };
+
+    const makeInput = (arr, idx, opts = {}) => {
+      const c = document.createElement('div');
+      let cls = 'cell';
+      if (arr[idx] !== null) cls += ' filled';
+      if (arr[idx] === 'X') cls += ' x-value';
+      if (submitted) cls += ' locked';
+      c.className = cls;
+      if (arr[idx] !== null) c.textContent = arr[idx];
+      if (submitted && opts.isAnswer) {
+        const correct = userAnswerNum() === q.product;
+        c.classList.add(correct ? 'answer-correct' : 'answer-wrong');
+      }
+      c.addEventListener('click', (e) => {
+        if (submitted) return;
+        openDialer(e, arr, idx, render);
+      });
+      return c;
+    };
+
+    // Grid layout (6 columns):
+    //   row 1: top carry circles      cols 4,5 (above hundreds & tens of multiplicand)
+    //   row 2: bottom carry circles   cols 4,5
+    //   row 3: multiplicand (3 digit) cols 4,5,6
+    //   row 4: x + multiplier         x@col4, digits @5,6
+    //   row 5: line
+    //   row 6: addition carries       cols 2,3,4,5 (above top partial product, cyan)
+    //   row 7: partial #1 (x ones)    cols 3,4,5,6
+    //   row 8: + and partial #2       +@col1, digits @2,3,4,5, placeholder @6
+    //   row 9: line
+    //   row 10: final answer          cols 2,3,4,5,6
+
+    for (let i = 0; i < 2; i++) place(makeCarry(userCarryTop, i), 4 + i, 1);
+    for (let i = 0; i < 2; i++) place(makeCarry(userCarryBot, i), 4 + i, 2);
+    for (let i = 0; i < 3; i++) place(makeFixed(aDigits[i]), 4 + i, 3);
+    place(makeOp('×'), 4, 4);
+    for (let i = 0; i < 2; i++) place(makeFixed(bDigits[i]), 5 + i, 4);
+
+    const line1 = document.createElement('div');
+    line1.className = 'line-row';
+    line1.style.gridColumn = '1 / -1';
+    line1.style.gridRow = '5';
+    grid.appendChild(line1);
+
+    const carryToggle = document.createElement('button');
+    carryToggle.className = 'carry-toggle' + (showAddCarry ? ' active' : '');
+    carryToggle.textContent = showAddCarry ? '▴' : '▾';
+    carryToggle.title = showAddCarry ? 'Hide addition carries' : 'Show addition carries';
+    carryToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showAddCarry = !showAddCarry;
+      render();
+    });
+    place(carryToggle, 1, 6);
+    if (showAddCarry) {
+      for (let i = 0; i < 4; i++) place(makeCarry(userCarryAdd, i, 'add'), 2 + i, 6);
+    }
+    for (let i = 0; i < 4; i++) place(makeInput(userP1, i), 3 + i, 7);
+    place(makeOp('+'), 1, 8);
+    for (let i = 0; i < 4; i++) place(makeInput(userP2, i), 2 + i, 8);
+    place(makeInput(userP2, 4), 6, 8);
+
+    const line2 = document.createElement('div');
+    line2.className = 'line-row';
+    line2.style.gridColumn = '1 / -1';
+    line2.style.gridRow = '9';
+    grid.appendChild(line2);
+
+    for (let i = 0; i < 5; i++) {
+      place(makeInput(userAnswer, i, { isAnswer: true }), 2 + i, 10);
+    }
+
+    document.getElementById('submit').disabled = submitted;
+    document.getElementById('reset').disabled = submitted;
+    document.getElementById('next').disabled = !submitted;
+  }
+
+  function onSubmit() {
+    if (submitted) return;
+    submitted = true;
+    const q = questions[qIdx];
+    const userNum = userAnswerNum();
+    const correct = userNum === q.product;
+    if (correct) score++;
+    const fb = document.getElementById('feedback');
+    if (correct) {
+      fb.className = 'feedback-correct';
+      fb.textContent = '✓ Correct!  ' + q.a + ' × ' + q.b + ' = ' + q.product;
+    } else {
+      fb.className = 'feedback-wrong';
+      fb.textContent = '✗ You entered ' + userNum + '. Correct: ' + q.a + ' × ' + q.b + ' = ' + q.product;
+    }
+    render();
+  }
+
+  function onReset() {
+    if (submitted) return;
+    closeDialer();
+    resetSlots();
+    const fb = document.getElementById('feedback');
+    fb.textContent = '';
+    fb.className = '';
+    render();
+  }
+
+  function onNext() {
+    if (qIdx < TOTAL - 1) {
+      qIdx++;
+      resetSlots();
+      const fb = document.getElementById('feedback');
+      fb.textContent = '';
+      fb.className = '';
+      render();
+    } else {
+      showGameOver();
+    }
+  }
+
+  function showGameOver() {
+    const pct = Math.round((score / TOTAL) * 100);
+    let msg = 'Nice work!';
+    if (pct === 100) msg = 'Perfect score!';
+    else if (pct >= 70) msg = 'Great job!';
+    else if (pct >= 40) msg = 'Keep practicing!';
+    else msg = 'Try again!';
+    document.body.innerHTML =
+      '<div id="gameover">' +
+        '<h1>All Done</h1>' +
+        '<div class="final-score">Final Score <strong>' + score + '</strong> / ' + TOTAL + '</div>' +
+        '<div class="gameover-msg">' + msg + '</div>' +
+        '<button onclick="location.reload()">Play Again</button>' +
+      '</div>';
+    document.body.style.justifyContent = 'center';
+  }
+
+  document.getElementById('submit').addEventListener('click', onSubmit);
+  document.getElementById('reset').addEventListener('click', onReset);
+  document.getElementById('next').addEventListener('click', onNext);
+
+  document.getElementById('btn-std').addEventListener('click', () => {
+    document.body.classList.remove('digital');
+    document.getElementById('btn-std').classList.add('active');
+    document.getElementById('btn-digital').classList.remove('active');
+  });
+  document.getElementById('btn-digital').addEventListener('click', () => {
+    document.body.classList.add('digital');
+    document.getElementById('btn-digital').classList.add('active');
+    document.getElementById('btn-std').classList.remove('active');
+  });
+
+  resetSlots();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,2 +1,0 @@
-# multiplication.html
-multiplication.html
