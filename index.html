@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -583,7 +581,15 @@
     letter-spacing: 0.5px;
   }
 
-  #logout {
+  .user-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  #logout,
+  #delete-account {
     background: transparent;
     color: #e94560;
     border: 2px solid #e94560;
@@ -596,7 +602,8 @@
     transition: background 0.2s, color 0.2s, transform 0.1s;
   }
 
-  #logout:hover {
+  #logout:hover,
+  #delete-account:hover {
     background: #e94560;
     color: #fff;
     transform: scale(1.03);
@@ -671,11 +678,81 @@
     transform: scale(1.03);
   }
 
+  .confirm-panel {
+    width: min(100%, 780px);
+    background: #16213e;
+    border: 2px solid #e94560;
+    border-radius: 12px;
+    padding: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .confirm-panel h2 {
+    color: #e94560;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .confirm-panel p {
+    color: #aaa;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .confirm-actions button {
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 0.65rem 1.25rem;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s, transform 0.1s;
+  }
+
+  #confirm-delete-account {
+    background: #e94560;
+    border: 2px solid #e94560;
+    color: #fff;
+  }
+
+  #confirm-delete-account:hover {
+    background: #c73652;
+    border-color: #c73652;
+    transform: scale(1.03);
+  }
+
+  #cancel-delete-account {
+    background: transparent;
+    border: 2px solid #0f3460;
+    color: #a8dadc;
+  }
+
+  #cancel-delete-account:hover {
+    border-color: #a8dadc;
+    color: #fff;
+    transform: scale(1.03);
+  }
+
   @media (max-width: 640px) {
     .user-panel-top {
       align-items: stretch;
       flex-direction: column;
       text-align: center;
+    }
+
+    .user-actions {
+      justify-content: center;
     }
 
     .user-stats {
@@ -731,8 +808,8 @@
       <p class="auth-subtitle">Sign in to play Multiplication Practice.</p>
       <form class="auth-form" id="login-form" novalidate>
         <div class="auth-field">
-          <label for="login-username">Username</label>
-          <input id="login-username" type="text" autocomplete="username">
+          <label for="login-username">Email</label>
+          <input id="login-username" type="email" autocomplete="email">
         </div>
         <div class="auth-field">
           <label for="login-password">Password</label>
@@ -755,8 +832,12 @@
       <p class="auth-subtitle">Create a local account for your scores.</p>
       <form class="auth-form" id="signup-form" novalidate>
         <div class="auth-field">
-          <label for="signup-username">Username</label>
-          <input id="signup-username" type="text" autocomplete="username">
+          <label for="signup-name">Name</label>
+          <input id="signup-name" type="text" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label for="signup-username">Email</label>
+          <input id="signup-username" type="email" autocomplete="email">
         </div>
         <div class="auth-field">
           <label for="signup-password">Password</label>
@@ -782,7 +863,10 @@
   <div class="user-panel" id="user-panel">
     <div class="user-panel-top">
       <div id="welcome-user">Welcome</div>
-      <button id="logout" type="button">Logout</button>
+      <div class="user-actions">
+        <button id="logout" type="button">Logout</button>
+        <button id="delete-account" type="button">Delete Account</button>
+      </div>
     </div>
     <div class="user-stats">
       <div class="stat-box">
@@ -801,6 +885,24 @@
         <div class="label">Average Score</div>
         <div class="val" id="stat-average-score">0</div>
       </div>
+    </div>
+  </div>
+
+  <div id="delete-confirm-panel" class="confirm-panel hidden" aria-live="polite">
+    <h2>Delete Account?</h2>
+    <p>This will permanently delete your account and all saved scores.</p>
+    <div class="confirm-actions">
+      <button id="confirm-delete-account" type="button">Yes, Delete</button>
+      <button id="cancel-delete-account" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <div id="logout-confirm-panel" class="confirm-panel hidden" aria-live="polite">
+    <h2>Log Out?</h2>
+    <p>Are you sure you want to log out?</p>
+    <div class="confirm-actions">
+      <button id="confirm-logout" type="button">Yes, Log Out</button>
+      <button id="cancel-logout" type="button">Cancel</button>
     </div>
   </div>
 
@@ -869,6 +971,12 @@
     return username.trim().toLowerCase();
   }
 
+  function displayNameFor(user) {
+    if (user.name) return user.name;
+    if (user.username && user.username.includes('@')) return user.username.split('@')[0];
+    return user.username || user.email || 'Player';
+  }
+
   function getUsers() {
     try {
       return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
@@ -915,7 +1023,7 @@
   function updateUserPanel() {
     const user = getCurrentUser();
     if (!user) return;
-    document.getElementById('welcome-user').textContent = 'Welcome, ' + user.username;
+    document.getElementById('welcome-user').textContent = 'Welcome, ' + displayNameFor(user);
     document.getElementById('stat-high-score').textContent = user.highScore;
     document.getElementById('stat-games-played').textContent = user.gamesPlayed;
     document.getElementById('stat-last-score').textContent = user.lastScore;
@@ -942,6 +1050,8 @@
     closeDialer();
     document.getElementById('game-title').classList.remove('hidden');
     document.getElementById('user-panel').classList.remove('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
     document.getElementById('home-panel').classList.remove('hidden');
     document.getElementById('game-content').classList.add('hidden');
     document.getElementById('gameover').classList.add('hidden');
@@ -968,13 +1078,22 @@
 
   function handleSignup(e) {
     e.preventDefault();
-    const username = document.getElementById('signup-username').value.trim();
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-username').value.trim();
     const password = document.getElementById('signup-password').value;
     const confirm = document.getElementById('signup-confirm').value;
-    const userKey = normalizeUsername(username);
+    const userKey = normalizeUsername(email);
 
-    if (!username) {
-      setAuthError('signup-error', 'Username is required.');
+    if (!name) {
+      setAuthError('signup-error', 'Name is required.');
+      return;
+    }
+    if (!email) {
+      setAuthError('signup-error', 'Email is required.');
+      return;
+    }
+    if (!email.includes('@')) {
+      setAuthError('signup-error', 'Enter a valid email address.');
       return;
     }
     if (!password) {
@@ -992,12 +1111,14 @@
 
     const users = getUsers();
     if (users[userKey]) {
-      setAuthError('signup-error', 'That username is already taken.');
+      setAuthError('signup-error', 'That email is already registered.');
       return;
     }
 
     users[userKey] = {
-      username,
+      username: email,
+      name,
+      email,
       password,
       createdAt: new Date().toISOString(),
       lastLogin: null,
@@ -1009,7 +1130,7 @@
     };
     saveUsers(users);
     document.getElementById('signup-form').reset();
-    document.getElementById('login-username').value = username;
+    document.getElementById('login-username').value = email;
     document.getElementById('login-password').value = '';
     showLogin();
     setAuthError('login-error', 'Account created. Please log in.');
@@ -1017,13 +1138,13 @@
 
   function handleLogin(e) {
     e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
+    const email = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value;
     const remember = document.getElementById('remember-me').checked;
-    const userKey = normalizeUsername(username);
+    const userKey = normalizeUsername(email);
 
-    if (!username) {
-      setAuthError('login-error', 'Username is required.');
+    if (!email) {
+      setAuthError('login-error', 'Email is required.');
       return;
     }
     if (!password) {
@@ -1033,7 +1154,7 @@
 
     const users = getUsers();
     if (!users[userKey] || users[userKey].password !== password) {
-      setAuthError('login-error', 'Invalid username or password.');
+      setAuthError('login-error', 'Invalid email or password.');
       return;
     }
 
@@ -1042,6 +1163,20 @@
   }
 
   function handleLogout() {
+    if (!currentUserKey) return;
+    document.getElementById('logout-confirm-panel').classList.remove('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    closeDialer();
+  }
+
+  function cancelLogout() {
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+  }
+
+  function confirmLogout() {
     updateUserPanel();
     const rememberedUser = localStorage.getItem(REMEMBER_USER_KEY);
     localStorage.removeItem(CURRENT_USER_KEY);
@@ -1053,6 +1188,33 @@
     showAuthScreen();
   }
 
+  function handleDeleteAccount() {
+    const user = getCurrentUser();
+    if (!user || !currentUserKey) return;
+    document.getElementById('delete-confirm-panel').classList.remove('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    closeDialer();
+  }
+
+  function cancelDeleteAccount() {
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+  }
+
+  function confirmDeleteAccount() {
+    if (!currentUserKey) return;
+    const users = getUsers();
+    delete users[currentUserKey];
+    saveUsers(users);
+    localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(REMEMBER_USER_KEY);
+    currentUserKey = null;
+    document.getElementById('login-form').reset();
+    showAuthScreen();
+    setAuthError('login-error', 'Account deleted.');
+  }
+
   function completeGameForCurrentUser(finalScore) {
     const user = getCurrentUser();
     if (!user) return;
@@ -1061,6 +1223,14 @@
     user.highScore = Math.max(user.highScore, finalScore);
     user.totalScore += finalScore;
     user.averageScore = user.gamesPlayed ? user.totalScore / user.gamesPlayed : 0;
+    saveCurrentUser(user);
+    updateUserPanel();
+  }
+
+  function updateHighScoreDuringPractice(currentScore) {
+    const user = getCurrentUser();
+    if (!user || currentScore <= user.highScore) return;
+    user.highScore = currentScore;
     saveCurrentUser(user);
     updateUserPanel();
   }
@@ -1087,6 +1257,8 @@
     fb.className = '';
     document.getElementById('game-title').classList.add('hidden');
     document.getElementById('user-panel').classList.add('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
     document.getElementById('home-panel').classList.add('hidden');
     document.getElementById('game-content').classList.remove('hidden');
     document.getElementById('gameover').classList.add('hidden');
@@ -1309,7 +1481,10 @@
     const q = questions[qIdx];
     const userNum = userAnswerNum();
     const correct = userNum === q.product;
-    if (correct) score++;
+    if (correct) {
+      score++;
+      updateHighScoreDuringPractice(score);
+    }
     const fb = document.getElementById('feedback');
     if (correct) {
       fb.className = 'feedback-correct';
@@ -1355,6 +1530,8 @@
     closeDialer();
     document.getElementById('game-title').classList.remove('hidden');
     document.getElementById('user-panel').classList.remove('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
     document.getElementById('home-panel').classList.add('hidden');
     document.getElementById('game-content').classList.add('hidden');
     const gameover = document.getElementById('gameover');
@@ -1373,6 +1550,11 @@
   document.getElementById('show-signup').addEventListener('click', showSignup);
   document.getElementById('show-login').addEventListener('click', showLogin);
   document.getElementById('logout').addEventListener('click', handleLogout);
+  document.getElementById('confirm-logout').addEventListener('click', confirmLogout);
+  document.getElementById('cancel-logout').addEventListener('click', cancelLogout);
+  document.getElementById('delete-account').addEventListener('click', handleDeleteAccount);
+  document.getElementById('confirm-delete-account').addEventListener('click', confirmDeleteAccount);
+  document.getElementById('cancel-delete-account').addEventListener('click', cancelDeleteAccount);
   document.getElementById('start-practice').addEventListener('click', startNewGame);
   document.getElementById('submit').addEventListener('click', onSubmit);
   document.getElementById('reset').addEventListener('click', onReset);
