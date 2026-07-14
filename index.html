@@ -1,1 +1,1343 @@
-j
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiplication Practice</title>
+<style>
+  @font-face {
+    font-family: 'DSEG7 Classic';
+    font-style: normal; font-weight: 400; font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/keshikan/DSEG@master/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'DSEG7 Classic';
+    font-style: normal; font-weight: 700; font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/keshikan/DSEG@master/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2') format('woff2');
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --border: #0f3460;
+    --accent: #e94560;
+    --accent2: #a8dadc;
+    --text: #eee;
+    --muted: #888;
+    --gold: #f1c40f;
+    --green: #2ecc71;
+    --cyan: #48cae4;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: var(--bg);
+    font-family: 'Segoe UI', sans-serif;
+    color: var(--text);
+    padding: 1.5rem 1rem 2.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen {
+    width: 100%;
+    min-height: calc(100vh - 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-card {
+    width: min(100%, 420px);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 16px 40px rgba(0,0,0,.35);
+  }
+  .auth-card h1 { margin-bottom: .35rem; }
+  .auth-subtitle { color: var(--muted); text-align: center; margin-bottom: 1.5rem; line-height: 1.4; }
+  .auth-form { display: flex; flex-direction: column; gap: .9rem; }
+  .auth-field { display: flex; flex-direction: column; gap: .35rem; }
+  .auth-field label, .remember-row { color: #aaa; font-size: .85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .auth-field input {
+    width: 100%; background: var(--bg); border: 2px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 1rem;
+    padding: .75rem .85rem; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .auth-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(233,69,96,.12); }
+  .remember-row { display: flex; align-items: center; gap: .55rem; cursor: pointer; user-select: none; }
+  .remember-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .auth-error { min-height: 1.2em; color: var(--accent); font-weight: 700; text-align: center; }
+  .auth-success { min-height: 1.2em; color: var(--green); font-weight: 700; text-align: center; }
+  .auth-actions { display: flex; flex-direction: column; gap: .75rem; margin-top: .25rem; }
+  .auth-primary, .auth-link, .auth-guest {
+    padding: .7rem 1.4rem; border-radius: 8px; font-size: 1rem;
+    font-weight: bold; letter-spacing: 1px; cursor: pointer;
+    transition: background .2s, transform .1s, border-color .2s, color .2s;
+  }
+  .auth-primary { background: var(--accent); color: #fff; border: none; }
+  .auth-primary:hover { background: #c73652; transform: scale(1.02); }
+  .auth-link { background: transparent; color: var(--accent2); border: 2px solid var(--border); }
+  .auth-link:hover { border-color: var(--accent2); color: #fff; transform: scale(1.02); }
+  .auth-guest { background: transparent; color: var(--muted); border: 2px solid var(--border); font-size: .9rem; }
+  .auth-guest:hover { border-color: var(--muted); color: var(--text); transform: scale(1.02); }
+  .auth-divider { display: flex; align-items: center; gap: .75rem; margin: .25rem 0; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+  .auth-divider span { color: var(--muted); font-size: .8rem; letter-spacing: 1px; text-transform: uppercase; }
+  .auth-forgot { color: var(--accent2); font-size: .82rem; cursor: pointer; background: none; border: none; text-align: right; align-self: flex-end; text-decoration: underline; }
+  .auth-forgot:hover { color: #fff; }
+
+  /* ── GAME SCREEN ── */
+  #game-screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+  /* ── USER PANEL ── */
+  .user-panel {
+    width: min(100%, 780px); background: var(--surface);
+    border: 2px solid var(--border); border-radius: 12px;
+    padding: 1rem; margin-bottom: 1rem;
+  }
+  .user-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .85rem; }
+  #welcome-user { color: var(--accent2); font-size: 1.05rem; font-weight: 800; letter-spacing: .5px; }
+  .user-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: flex-end; }
+  .user-actions button {
+    background: transparent; color: var(--accent); border: 2px solid var(--accent);
+    padding: .45rem .9rem; border-radius: 8px; cursor: pointer;
+    font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    transition: background .2s, color .2s, transform .1s; font-size: .8rem;
+  }
+  .user-actions button:hover { background: var(--accent); color: #fff; transform: scale(1.03); }
+  .user-stats { display: grid; grid-template-columns: repeat(4, minmax(100px, 1fr)); gap: .75rem; }
+  .stat-box { background: var(--bg); border: 2px solid var(--border); border-radius: 8px; padding: .65rem; text-align: center; }
+  .stat-box .label { color: var(--muted); font-size: .7rem; text-transform: uppercase; letter-spacing: 1.2px; }
+  .stat-box .val { color: var(--accent); font-size: 1.35rem; font-weight: bold; }
+
+  /* ── HOME PANEL ── */
+  .home-panel {
+    width: min(100%, 780px); background: var(--surface);
+    border: 2px solid var(--border); border-radius: 12px; padding: 1.5rem;
+  }
+  .home-panel-hero { text-align: center; margin-bottom: 1.5rem; }
+  .home-panel-hero h2 { color: var(--accent2); font-size: 1.35rem; margin-bottom: .6rem; letter-spacing: 1px; text-transform: uppercase; }
+  .home-panel-hero p { color: var(--muted); line-height: 1.5; margin-bottom: 1.2rem; }
+  #start-practice {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    cursor: pointer; font-size: 1rem; font-weight: bold; letter-spacing: 1px;
+    padding: .75rem 2rem; text-transform: uppercase; transition: background .2s, transform .1s;
+  }
+  #start-practice:hover { background: #c73652; transform: scale(1.03); }
+
+  /* ── HOME NAV TABS ── */
+  .home-tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: .75rem; }
+  .home-tab {
+    padding: .45rem 1rem; border-radius: 8px 8px 0 0; border: 2px solid var(--border);
+    border-bottom: none; background: var(--bg); color: var(--muted);
+    cursor: pointer; font-size: .85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    transition: background .15s, color .15s;
+  }
+  .home-tab.active { background: var(--surface); color: var(--accent2); border-color: var(--accent); }
+  .home-tab:hover:not(.active) { color: var(--text); }
+  .home-tab-content { display: none; }
+  .home-tab-content.active { display: block; }
+
+  /* ── LEADERBOARD ── */
+  .leaderboard-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .leaderboard-table th {
+    background: var(--bg); color: var(--muted); text-transform: uppercase;
+    font-size: .72rem; letter-spacing: 1.2px; padding: .55rem .75rem; text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  .leaderboard-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); }
+  .leaderboard-table tr:hover td { background: rgba(255,255,255,.03); }
+  .rank-1 td:first-child { color: #ffd700; font-weight: 900; }
+  .rank-2 td:first-child { color: #c0c0c0; font-weight: 900; }
+  .rank-3 td:first-child { color: #cd7f32; font-weight: 900; }
+  .leaderboard-self td { background: rgba(168,218,220,.06); }
+  .lb-empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: .9rem; }
+
+  /* ── PROGRESS HISTORY ── */
+  .history-list { display: flex; flex-direction: column; gap: .5rem; max-height: 340px; overflow-y: auto; }
+  .history-entry {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .6rem 1rem;
+    font-size: .88rem;
+  }
+  .history-entry .h-date { color: var(--muted); font-size: .78rem; }
+  .history-score { font-weight: 800; color: var(--accent); font-size: 1.1rem; }
+  .history-score.perfect { color: var(--gold); }
+
+  /* ── PROFILE SETTINGS ── */
+  .profile-section { display: flex; flex-direction: column; gap: 1rem; }
+  .profile-field { display: flex; flex-direction: column; gap: .35rem; }
+  .profile-field label { color: #aaa; font-size: .82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .profile-field input {
+    background: var(--bg); border: 2px solid var(--border); border-radius: 8px;
+    color: var(--text); font-size: 1rem; padding: .65rem .85rem; outline: none;
+    transition: border-color .15s;
+  }
+  .profile-field input:focus { border-color: var(--accent); }
+  .profile-actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: .5rem; }
+  .btn-save { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .6rem 1.4rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: background .2s; }
+  .btn-save:hover { background: #c73652; }
+  .btn-danger { background: transparent; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px; padding: .6rem 1.4rem; font-weight: 700; cursor: pointer; letter-spacing: 1px; transition: background .2s, color .2s; }
+  .btn-danger:hover { background: var(--accent); color: #fff; }
+  .profile-msg { font-size: .88rem; font-weight: 700; min-height: 1.2em; }
+  .profile-msg.ok { color: var(--green); }
+  .profile-msg.err { color: var(--accent); }
+
+  /* ── IMPORT / EXPORT ── */
+  .io-section { display: flex; flex-direction: column; gap: 1rem; }
+  .io-btn {
+    display: flex; align-items: center; gap: .75rem; background: var(--bg);
+    border: 2px solid var(--border); border-radius: 8px; padding: .85rem 1.1rem;
+    cursor: pointer; color: var(--text); font-size: .95rem; font-weight: 700;
+    transition: border-color .15s, background .15s; text-align: left; width: 100%;
+  }
+  .io-btn:hover { border-color: var(--accent2); background: rgba(168,218,220,.05); }
+  .io-btn .io-icon { font-size: 1.5rem; }
+  .io-btn .io-label { display: flex; flex-direction: column; }
+  .io-btn .io-label span:first-child { color: var(--accent2); }
+  .io-btn .io-label span:last-child { color: var(--muted); font-size: .78rem; font-weight: 400; margin-top: .1rem; }
+  .io-msg { color: var(--green); font-size: .88rem; font-weight: 700; min-height: 1.2em; }
+
+  /* ── CONFIRM PANEL ── */
+  .confirm-panel {
+    width: min(100%, 780px); background: var(--surface);
+    border: 2px solid var(--accent); border-radius: 12px;
+    padding: 1.4rem; margin-bottom: 1rem; text-align: center;
+  }
+  .confirm-panel h2 { color: var(--accent); font-size: 1.2rem; letter-spacing: 1px; margin-bottom: .5rem; text-transform: uppercase; }
+  .confirm-panel p { color: #aaa; line-height: 1.5; margin-bottom: 1rem; }
+  .confirm-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+  .confirm-actions button { border-radius: 8px; cursor: pointer; font-size: .95rem; font-weight: 800; letter-spacing: 1px; padding: .65rem 1.25rem; text-transform: uppercase; transition: background .2s, color .2s, transform .1s; }
+  #confirm-delete-account { background: var(--accent); border: 2px solid var(--accent); color: #fff; }
+  #confirm-delete-account:hover { background: #c73652; border-color: #c73652; transform: scale(1.03); }
+  #cancel-delete-account { background: transparent; border: 2px solid var(--border); color: var(--accent2); }
+  #cancel-delete-account:hover { border-color: var(--accent2); color: #fff; transform: scale(1.03); }
+  #confirm-logout { background: var(--accent); border: 2px solid var(--accent); color: #fff; }
+  #confirm-logout:hover { background: #c73652; border-color: #c73652; transform: scale(1.03); }
+  #cancel-logout { background: transparent; border: 2px solid var(--border); color: var(--accent2); }
+  #cancel-logout:hover { border-color: var(--accent2); color: #fff; transform: scale(1.03); }
+
+  /* ── GAME CONTENT ── */
+  #display-toggle { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  .mode-btn { padding: .4rem 1.1rem; border-radius: 20px; border: 2px solid var(--border); background: var(--surface); color: #aaa; cursor: pointer; font-size: .85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; transition: all .15s; }
+  .mode-btn:hover:not(.active) { color: var(--text); border-color: var(--accent2); }
+  .mode-btn.active { background: var(--border); color: #fff; border-color: var(--accent); }
+
+  .header { display: flex; gap: 1.25rem; margin-bottom: 1.25rem; }
+  .score-box { text-align: center; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: .5rem 1.2rem; min-width: 130px; }
+  .score-box .label { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: 1.5px; }
+  .score-box .val { font-size: 1.6rem; font-weight: bold; color: var(--accent); }
+  .score-box.total .val { color: var(--accent2); }
+  .score-box .of { color: #666; font-size: 1rem; font-weight: normal; }
+
+  .worksheet { background: var(--surface); border: 2px solid var(--border); padding: 1.75rem 2rem; border-radius: 12px; margin-bottom: 1.25rem; display: flex; justify-content: center; }
+  .grid { display: inline-grid; grid-template-columns: repeat(6, 54px); grid-auto-rows: 54px; gap: 6px; align-items: center; justify-items: center; }
+  .cell { width: 54px; height: 54px; background: var(--bg); border: 2px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: bold; color: var(--text); cursor: pointer; user-select: none; transition: background .15s, transform .1s, border-color .15s; }
+  .cell:hover:not(.fixed):not(.op):not(.locked) { background: var(--border); border-color: var(--accent); transform: scale(1.05); }
+  .cell.filled { color: var(--accent2); }
+  .cell.x-value { color: var(--gold); }
+  .cell.fixed { border: none; background: transparent; cursor: default; color: var(--accent2); }
+  .cell.op { border: none; background: transparent; cursor: default; color: var(--accent); font-size: 1.9rem; }
+  .cell.answer-correct { background: rgba(46,204,113,.18) !important; border-color: #2ecc71 !important; color: #2ecc71 !important; animation: pulse .5s ease-in-out; }
+  .cell.answer-wrong { background: rgba(233,69,96,.18) !important; border-color: var(--accent) !important; color: var(--accent) !important; }
+  .cell.locked { cursor: not-allowed; }
+  @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
+
+  .carry { width: 38px; height: 38px; border: 2px dashed var(--accent); border-radius: 50%; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: bold; color: var(--accent); cursor: pointer; user-select: none; transition: background .15s, transform .1s, border-style .15s; }
+  .carry:hover:not(.locked) { background: var(--border); border-style: solid; transform: scale(1.1); }
+  .carry.locked { cursor: not-allowed; opacity: .7; }
+  .carry.x-value { color: var(--gold); border-color: var(--gold); }
+  .carry.add { color: var(--cyan); border-color: var(--cyan); }
+  .carry.add:hover:not(.locked) { background: #023e58; }
+  .carry.add.x-value { color: var(--gold); border-color: var(--gold); }
+
+  .carry-toggle { width: 30px; height: 30px; padding: 0; line-height: 1; border-radius: 50%; border: 2px solid var(--cyan); background: var(--bg); color: var(--cyan); font-size: .85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, transform .1s; }
+  .carry-toggle:hover { background: #023e58; transform: scale(1.1); }
+  .carry-toggle.active { background: #023e58; }
+  .line-row { height: 0; border-top: 3px solid var(--accent2); width: 100%; margin: 2px 0; }
+
+  .controls { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+  button.action { padding: .6rem 2rem; font-size: 1rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; letter-spacing: 1px; transition: background .2s, transform .1s, border-color .2s, color .2s; }
+  button.action:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+  button.action:active { transform: scale(.97); }
+  #submit { background: var(--accent); color: #fff; }
+  #submit:hover:not(:disabled) { background: #c73652; transform: scale(1.04); }
+  #reset { background: transparent; color: #aaa; border: 2px solid var(--border); }
+  #reset:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); transform: scale(1.04); }
+  #next { background: var(--accent2); color: var(--bg); }
+  #next:hover:not(:disabled) { background: #7fc1c4; transform: scale(1.04); }
+  #end-practice { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+  #end-practice:hover:not(:disabled) { background: var(--accent); color: #fff; transform: scale(1.04); }
+
+  #feedback { min-height: 1.6em; margin-top: 1rem; font-size: 1.05rem; font-weight: bold; text-align: center; padding: .5rem 1.2rem; border-radius: 8px; letter-spacing: .5px; }
+  .feedback-correct { background: rgba(46,204,113,.15); color: #2ecc71; border: 2px solid #2ecc71; }
+  .feedback-wrong { background: rgba(233,69,96,.15); color: var(--accent); border: 2px solid var(--accent); }
+
+  #dialer { position: fixed; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: .6rem; box-shadow: 0 8px 24px rgba(0,0,0,.6); display: none; grid-template-columns: repeat(3, 50px); gap: 6px; z-index: 200; }
+  #dialer button { width: 50px; height: 50px; padding: 0; font-size: 1.1rem; font-weight: bold; background: var(--bg); color: var(--accent2); border: 2px solid var(--border); border-radius: 6px; cursor: pointer; transition: background .1s, transform .08s, border-color .1s, color .1s; }
+  #dialer button:hover { background: var(--border); border-color: var(--accent); color: #fff; }
+  #dialer button:active { transform: scale(.94); }
+  #dialer button.x-btn { color: var(--gold); border-color: var(--border); }
+  #dialer button.x-btn:hover { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+  #dialer button.back-btn { background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1.3rem; }
+  #dialer button.back-btn:hover { background: #c73652; border-color: #c73652; }
+
+  #gameover { text-align: center; padding: 2.5rem 3rem; background: var(--surface); border: 2px solid var(--border); border-radius: 12px; color: var(--text); margin-top: 2rem; }
+  #gameover h1 { font-size: 2rem; margin-bottom: 1rem; }
+  #gameover .final-score { font-size: 1.3rem; margin: 1rem 0; color: var(--accent2); }
+  #gameover .final-score strong { color: var(--accent); font-size: 2.5rem; margin: 0 .3rem; }
+  #gameover .gameover-msg { font-size: 1rem; color: var(--muted); margin-bottom: 1.5rem; letter-spacing: 1px; }
+  #gameover .gameover-actions { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; }
+  #gameover button { background: var(--accent); color: #fff; padding: .6rem 2rem; font-size: 1rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; letter-spacing: 1px; transition: background .2s, transform .1s; }
+  #gameover button:hover { background: #c73652; transform: scale(1.04); }
+  #gameover button.btn-home { background: transparent; color: var(--accent2); border: 2px solid var(--accent2); }
+  #gameover button.btn-home:hover { background: var(--accent2); color: var(--bg); }
+
+  .hint { font-size: .8rem; color: #666; margin-top: .9rem; text-align: center; max-width: 460px; line-height: 1.5; }
+
+  /* ── MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-box { background: var(--surface); border: 2px solid var(--border); border-radius: 14px; padding: 2rem; width: min(100%, 400px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+  .modal-box h2 { color: var(--accent2); font-size: 1.2rem; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase; }
+  .modal-box p { color: #aaa; line-height: 1.5; margin-bottom: 1rem; font-size: .9rem; }
+  .modal-field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .85rem; }
+  .modal-field label { color: #aaa; font-size: .82rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .modal-field input { background: var(--bg); border: 2px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; padding: .65rem .85rem; outline: none; transition: border-color .15s; }
+  .modal-field input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: .75rem; margin-top: 1rem; }
+  .modal-error { color: var(--accent); font-size: .85rem; font-weight: 700; min-height: 1.2em; margin-bottom: .5rem; }
+  .modal-success { color: var(--green); font-size: .85rem; font-weight: 700; min-height: 1.2em; margin-bottom: .5rem; }
+
+  /* ── DIGITAL MODE ── */
+  body.digital .cell,
+  body.digital .carry,
+  body.digital #dialer button,
+  body.digital .score-box .val { font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace; letter-spacing: 1px; }
+  body.digital .cell.filled, body.digital .cell.fixed { text-shadow: 0 0 4px var(--accent2), 0 0 12px rgba(168,218,220,.55); }
+  body.digital .cell.op, body.digital .carry { text-shadow: 0 0 4px var(--accent), 0 0 12px rgba(233,69,96,.55); }
+  body.digital .cell.x-value, body.digital .carry.x-value { text-shadow: 0 0 4px var(--gold), 0 0 12px rgba(241,196,15,.55); }
+  body.digital .carry.add { text-shadow: 0 0 4px var(--cyan), 0 0 12px rgba(72,202,228,.55); }
+  body.digital .cell.answer-correct { text-shadow: 0 0 4px var(--green), 0 0 12px rgba(46,204,113,.55); }
+  body.digital .cell.answer-wrong { text-shadow: 0 0 4px var(--accent), 0 0 12px rgba(233,69,96,.55); }
+  body.digital .score-box .val { text-shadow: 0 0 4px currentColor, 0 0 12px currentColor; }
+
+  @media (max-width: 640px) {
+    .user-panel-top { align-items: stretch; flex-direction: column; text-align: center; }
+    .user-actions { justify-content: center; }
+    .user-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .home-tabs { gap: .35rem; }
+    .home-tab { font-size: .75rem; padding: .35rem .75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ AUTH SCREEN ═══════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+
+    <div id="login-panel">
+      <h1>Login</h1>
+      <p class="auth-subtitle">Sign in to track your scores.</p>
+      <div class="auth-form" id="login-form">
+        <div class="auth-field">
+          <label for="login-username">Email</label>
+          <input id="login-username" type="email" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" autocomplete="current-password">
+        </div>
+        <label class="remember-row" for="remember-me">
+          <input id="remember-me" type="checkbox"> Remember Me
+        </label>
+        <button class="auth-forgot" type="button" id="show-forgot">Forgot Password?</button>
+        <div class="auth-error" id="login-error" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-primary" type="button" id="btn-login">Login</button>
+          <div class="auth-divider"><span>or</span></div>
+          <button class="auth-link" id="show-signup" type="button">Create Account</button>
+          <button class="auth-guest" id="play-as-guest" type="button">▶ Play as Guest</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="signup-panel" class="hidden">
+      <h1>Sign Up</h1>
+      <p class="auth-subtitle">Create an account to save your scores.</p>
+      <div class="auth-form" id="signup-form">
+        <div class="auth-field">
+          <label for="signup-name">Name</label>
+          <input id="signup-name" type="text" autocomplete="name">
+        </div>
+        <div class="auth-field">
+          <label for="signup-username">Email</label>
+          <input id="signup-username" type="email" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="signup-password">Password</label>
+          <input id="signup-password" type="password" autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label for="signup-confirm">Confirm Password</label>
+          <input id="signup-confirm" type="password" autocomplete="new-password">
+        </div>
+        <div class="auth-error" id="signup-error" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-primary" type="button" id="btn-signup">Sign Up</button>
+          <button class="auth-link" id="show-login" type="button">Back to Login</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="forgot-panel" class="hidden">
+      <h1>Reset Password</h1>
+      <p class="auth-subtitle">Enter your email and new password.</p>
+      <div class="auth-form" id="forgot-form">
+        <div class="auth-field">
+          <label for="forgot-email">Email</label>
+          <input id="forgot-email" type="email" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label for="forgot-newpass">New Password</label>
+          <input id="forgot-newpass" type="password">
+        </div>
+        <div class="auth-field">
+          <label for="forgot-confirm">Confirm New Password</label>
+          <input id="forgot-confirm" type="password">
+        </div>
+        <div class="auth-error" id="forgot-error" aria-live="polite"></div>
+        <div class="auth-success" id="forgot-success" aria-live="polite"></div>
+        <div class="auth-actions">
+          <button class="auth-primary" type="button" id="btn-forgot">Reset Password</button>
+          <button class="auth-link" id="back-to-login" type="button">Back to Login</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ GAME SCREEN ═══════════════════ -->
+<div id="game-screen" class="hidden">
+  <h1 id="game-title">Multiplication</h1>
+
+  <!-- User panel (logged in) -->
+  <div class="user-panel" id="user-panel">
+    <div class="user-panel-top">
+      <div id="welcome-user">Welcome</div>
+      <div class="user-actions">
+        <button id="logout" type="button">Logout</button>
+        <button id="delete-account" type="button">Delete Account</button>
+      </div>
+    </div>
+    <div class="user-stats">
+      <div class="stat-box"><div class="label">High Score</div><div class="val" id="stat-high-score">0</div></div>
+      <div class="stat-box"><div class="label">Games Played</div><div class="val" id="stat-games-played">0</div></div>
+      <div class="stat-box"><div class="label">Last Score</div><div class="val" id="stat-last-score">—</div></div>
+      <div class="stat-box"><div class="label">Avg Score</div><div class="val" id="stat-average-score">—</div></div>
+    </div>
+  </div>
+
+  <!-- Confirm panels -->
+  <div id="delete-confirm-panel" class="confirm-panel hidden" aria-live="polite">
+    <h2>Delete Account?</h2>
+    <p>This will permanently delete your account and all saved scores. This cannot be undone.</p>
+    <div class="confirm-actions">
+      <button id="confirm-delete-account" type="button">Yes, Delete</button>
+      <button id="cancel-delete-account" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <div id="logout-confirm-panel" class="confirm-panel hidden" aria-live="polite">
+    <h2>Log Out?</h2>
+    <p>Are you sure you want to log out?</p>
+    <div class="confirm-actions">
+      <button id="confirm-logout" type="button">Yes, Log Out</button>
+      <button id="cancel-logout" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Home panel with tabs -->
+  <div id="home-panel" class="home-panel">
+    <div class="home-panel-hero">
+      <h2>Ready to Practice?</h2>
+      <p>Work through 10 long-multiplication problems step-by-step.<br>Your progress is saved automatically.</p>
+      <button id="start-practice" type="button">▶ Start Practice</button>
+    </div>
+
+    <div class="home-tabs" id="home-tabs">
+      <button class="home-tab active" data-tab="leaderboard">🏆 Leaderboard</button>
+      <button class="home-tab" data-tab="history">📈 History</button>
+      <button class="home-tab" data-tab="io">⇅ Import / Export</button>
+      <button class="home-tab" data-tab="profile">⚙ Profile</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="home-tab-content active" id="tab-leaderboard">
+      <table class="leaderboard-table">
+        <thead>
+          <tr><th>#</th><th>Name</th><th>High Score</th><th>Games</th><th>Avg</th></tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <tr><td colspan="5" class="lb-empty">No scores yet — be the first!</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- History -->
+    <div class="home-tab-content" id="tab-history">
+      <div id="history-list" class="history-list">
+        <div class="lb-empty">No games played yet.</div>
+      </div>
+    </div>
+
+    <!-- Import / Export -->
+    <div class="home-tab-content" id="tab-io">
+      <div class="io-section">
+        <button class="io-btn" id="btn-export" type="button">
+          <span class="io-icon">⬇</span>
+          <span class="io-label">
+            <span>Export My Data</span>
+            <span>Download all your scores and settings as a JSON file</span>
+          </span>
+        </button>
+        <button class="io-btn" id="btn-import-trigger" type="button">
+          <span class="io-icon">⬆</span>
+          <span class="io-label">
+            <span>Import Data</span>
+            <span>Restore from a previously exported JSON file</span>
+          </span>
+        </button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none">
+        <div class="io-msg" id="io-msg"></div>
+      </div>
+    </div>
+
+    <!-- Profile Settings -->
+    <div class="home-tab-content" id="tab-profile">
+      <div class="profile-section">
+        <div class="profile-field">
+          <label for="profile-name">Display Name</label>
+          <input id="profile-name" type="text" placeholder="Your name">
+        </div>
+        <div class="profile-field">
+          <label for="profile-email">Email (read-only)</label>
+          <input id="profile-email" type="email" readonly style="opacity:.6;cursor:not-allowed">
+        </div>
+        <div class="profile-field">
+          <label for="profile-newpass">New Password (leave blank to keep)</label>
+          <input id="profile-newpass" type="password" placeholder="New password">
+        </div>
+        <div class="profile-field">
+          <label for="profile-confirmpass">Confirm New Password</label>
+          <input id="profile-confirmpass" type="password" placeholder="Confirm password">
+        </div>
+        <div class="profile-msg" id="profile-msg"></div>
+        <div class="profile-actions">
+          <button class="btn-save" id="btn-save-profile" type="button">Save Changes</button>
+          <button class="btn-danger" id="btn-clear-history" type="button">Clear History</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /home-panel -->
+
+  <!-- Game content -->
+  <div id="game-content" class="hidden">
+    <div id="display-toggle">
+      <button class="mode-btn active" id="btn-std" type="button">Standard</button>
+      <button class="mode-btn" id="btn-digital" type="button">Digital</button>
+    </div>
+    <div class="header">
+      <div class="score-box">
+        <div class="label">Question</div>
+        <div class="val"><span id="qnum">1</span><span class="of"> / 10</span></div>
+      </div>
+      <div class="score-box total">
+        <div class="label">Score</div>
+        <div class="val"><span id="score">0</span></div>
+      </div>
+    </div>
+    <div class="worksheet" id="worksheet"></div>
+    <div class="controls">
+      <button class="action" id="submit">Submit</button>
+      <button class="action" id="reset">Reset</button>
+      <button class="action" id="next" disabled>Next &#9654;</button>
+      <button class="action" id="end-practice" type="button">End Practice</button>
+    </div>
+    <div id="feedback"></div>
+    <p class="hint">Tap any box or circle to open the dialer. Pick a digit, pick <strong style="color:#f1c40f">X</strong> for a placeholder, or use <strong style="color:#e94560">&larr;</strong> to remove the value. The rightmost slot on the second partial row is the shift-placeholder &mdash; mark it X. Only the bottom answer row is graded.</p>
+  </div>
+
+  <div id="gameover" class="hidden"></div>
+</div><!-- /game-screen -->
+
+<!-- Forgot-password modal (in-game) -->
+<div id="change-pass-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h2>Change Password</h2>
+    <div class="modal-field">
+      <label for="cp-current">Current Password</label>
+      <input id="cp-current" type="password">
+    </div>
+    <div class="modal-field">
+      <label for="cp-new">New Password</label>
+      <input id="cp-new" type="password">
+    </div>
+    <div class="modal-field">
+      <label for="cp-confirm">Confirm New Password</label>
+      <input id="cp-confirm" type="password">
+    </div>
+    <div class="modal-error" id="cp-error"></div>
+    <div class="modal-actions">
+      <button class="btn-save" id="cp-save" type="button">Change</button>
+      <button class="btn-danger" id="cp-cancel" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="dialer"></div>
+
+<script>
+(() => {
+  // ── CONSTANTS ──
+  const USERS_KEY   = 'multiplicationGameUsers';
+  const CURRENT_KEY = 'multiplicationGameCurrentUser';
+  const REMEMBER_KEY= 'multiplicationGameRememberedUser';
+  const TOTAL = 10;
+
+  // ── STATE ──
+  const questions = [];
+  let currentUserKey = null;
+  let isGuest = false;
+  let qIdx = 0, score = 0;
+  let userAnswer=[], userP1=[], userP2=[], userCarryTop=[], userCarryBot=[], userCarryAdd=[];
+  let showAddCarry = false, submitted = false;
+
+  // ── URL ROUTING ──
+  const ROUTES = { auth:'#/auth', home:'#/home', play:'#/play', gameover:'#/gameover' };
+  function pushRoute(hash) { history.pushState(null, '', hash); }
+  function getRoute() { return location.hash || ROUTES.auth; }
+
+  window.addEventListener('popstate', () => {
+    const r = getRoute();
+    if (r === ROUTES.play) { /* let game state handle */ }
+    else if (r === ROUTES.home && (currentUserKey || isGuest)) showHomeScreenDirect();
+    else if (r === ROUTES.auth) forceAuthScreen();
+  });
+
+  function forceAuthScreen() {
+    currentUserKey = null; isGuest = false;
+    showAuthScreen();
+  }
+
+  // ── LOCAL STORAGE HELPERS ──
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch { return {}; }
+  }
+  function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+  function getCurrentUser() {
+    if (!currentUserKey) return null;
+    return getUsers()[currentUserKey] || null;
+  }
+  function saveCurrentUser(user) {
+    if (!currentUserKey || !user) return;
+    const u = getUsers(); u[currentUserKey] = user; saveUsers(u);
+  }
+  function normalizeEmail(e) { return e.trim().toLowerCase(); }
+  function displayNameFor(user) {
+    if (!user) return 'Guest';
+    return user.name || (user.email ? user.email.split('@')[0] : 'Player');
+  }
+
+  // ── AUTH ERROR HELPERS ──
+  function setErr(id, msg) { const el=document.getElementById(id); if(el) el.textContent=msg; }
+  function setOk(id, msg)  { const el=document.getElementById(id); if(el) el.textContent=msg; }
+
+  // ── PANEL VISIBILITY HELPERS ──
+  function hideAll() {
+    ['auth-screen','game-screen'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  }
+  function showAuthScreen() {
+    closeDialer();
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.body.style.justifyContent='center';
+    showLoginPanel();
+    pushRoute(ROUTES.auth);
+  }
+  function showLoginPanel() {
+    document.getElementById('login-panel').classList.remove('hidden');
+    document.getElementById('signup-panel').classList.add('hidden');
+    document.getElementById('forgot-panel').classList.add('hidden');
+    setErr('login-error',''); setErr('signup-error','');
+  }
+  function showSignupPanel() {
+    document.getElementById('login-panel').classList.add('hidden');
+    document.getElementById('signup-panel').classList.remove('hidden');
+    document.getElementById('forgot-panel').classList.add('hidden');
+    setErr('login-error',''); setErr('signup-error','');
+  }
+  function showForgotPanel() {
+    document.getElementById('login-panel').classList.add('hidden');
+    document.getElementById('signup-panel').classList.add('hidden');
+    document.getElementById('forgot-panel').classList.remove('hidden');
+    setErr('forgot-error',''); setOk('forgot-success','');
+  }
+
+  function showGameScreen() {
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    document.body.style.justifyContent='flex-start';
+    updateUserPanel();
+    showHomeScreenDirect();
+  }
+  function showHomeScreenDirect() {
+    closeDialer();
+    document.getElementById('game-title').classList.remove('hidden');
+    const guestMode = isGuest || !currentUserKey;
+    document.getElementById('user-panel').classList.toggle('hidden', guestMode);
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+    document.getElementById('game-content').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    document.getElementById('gameover').innerHTML='';
+    document.body.style.justifyContent='flex-start';
+    if (guestMode) {
+      document.getElementById('welcome-user').textContent='Playing as Guest';
+    }
+    refreshLeaderboard();
+    refreshHistory();
+    refreshProfileFields();
+    pushRoute(ROUTES.home);
+  }
+
+  // ── USER PANEL ──
+  function updateUserPanel() {
+    if (isGuest || !currentUserKey) return;
+    const user = getCurrentUser();
+    if (!user) return;
+    document.getElementById('welcome-user').textContent = 'Welcome, ' + displayNameFor(user);
+    document.getElementById('stat-high-score').textContent = user.highScore ?? 0;
+    document.getElementById('stat-games-played').textContent = user.gamesPlayed ?? 0;
+    document.getElementById('stat-last-score').textContent = user.lastScore ?? '—';
+    document.getElementById('stat-average-score').textContent =
+      user.gamesPlayed ? Number(user.averageScore).toFixed(1) : '—';
+  }
+
+  // ── LEADERBOARD ──
+  function refreshLeaderboard() {
+    const users = getUsers();
+    const rows = Object.values(users)
+      .filter(u => u.gamesPlayed > 0)
+      .sort((a,b) => (b.highScore||0)-(a.highScore||0) || (b.averageScore||0)-(a.averageScore||0));
+    const tbody = document.getElementById('leaderboard-body');
+    if (!rows.length) {
+      tbody.innerHTML='<tr><td colspan="5" class="lb-empty">No scores yet — be the first!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map((u,i) => {
+      const isSelf = u.email && normalizeEmail(u.email) === currentUserKey;
+      const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+      return `<tr class="${rankClass}${isSelf?' leaderboard-self':''}">
+        <td>${i+1}</td>
+        <td>${escHtml(displayNameFor(u))}${isSelf?' ★':''}</td>
+        <td>${u.highScore??0} / 10</td>
+        <td>${u.gamesPlayed??0}</td>
+        <td>${u.gamesPlayed ? Number(u.averageScore).toFixed(1) : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── HISTORY ──
+  function refreshHistory() {
+    const container = document.getElementById('history-list');
+    if (isGuest || !currentUserKey) {
+      container.innerHTML='<div class="lb-empty">Sign in to track your history.</div>';
+      return;
+    }
+    const user = getCurrentUser();
+    const history = (user && user.history) ? user.history : [];
+    if (!history.length) {
+      container.innerHTML='<div class="lb-empty">No games played yet.</div>';
+      return;
+    }
+    container.innerHTML = [...history].reverse().map(h => {
+      const pct = Math.round((h.score/TOTAL)*100);
+      const dateStr = new Date(h.date).toLocaleString();
+      return `<div class="history-entry">
+        <div>
+          <div style="font-weight:700;color:var(--accent2)">${h.score} / ${TOTAL} (${pct}%)</div>
+          <div class="h-date">${dateStr}</div>
+        </div>
+        <div class="history-score ${h.score===TOTAL?'perfect':''}">${pct===100?'⭐':''}${h.score}/${TOTAL}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── PROFILE ──
+  function refreshProfileFields() {
+    if (isGuest || !currentUserKey) {
+      document.getElementById('profile-name').value='';
+      document.getElementById('profile-email').value='Guest';
+      return;
+    }
+    const user = getCurrentUser();
+    if (!user) return;
+    document.getElementById('profile-name').value = user.name || '';
+    document.getElementById('profile-email').value = user.email || '';
+  }
+
+  // ── TABS ──
+  document.querySelectorAll('.home-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.home-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.home-tab-content').forEach(c=>c.classList.remove('active'));
+      tab.classList.add('active');
+      const contentId = 'tab-' + tab.dataset.tab;
+      document.getElementById(contentId).classList.add('active');
+    });
+  });
+
+  // ── AUTH HANDLERS ──
+  document.getElementById('show-signup').addEventListener('click', showSignupPanel);
+  document.getElementById('show-login').addEventListener('click', showLoginPanel);
+  document.getElementById('show-forgot').addEventListener('click', showForgotPanel);
+  document.getElementById('back-to-login').addEventListener('click', showLoginPanel);
+
+  document.getElementById('play-as-guest').addEventListener('click', () => {
+    isGuest = true; currentUserKey = null;
+    showGameScreen();
+  });
+
+  function clearLoginForm() {
+    document.getElementById('login-username').value='';
+    document.getElementById('login-password').value='';
+    document.getElementById('remember-me').checked=false;
+  }
+  document.getElementById('btn-login').addEventListener('click', () => {
+    const email = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember-me').checked;
+    if (!email) { setErr('login-error','Email is required.'); return; }
+    if (!password) { setErr('login-error','Password is required.'); return; }
+    const userKey = normalizeEmail(email);
+    const users = getUsers();
+    if (!users[userKey] || users[userKey].password !== password) {
+      setErr('login-error','Invalid email or password.'); return;
+    }
+    clearLoginForm();
+    isGuest = false;
+    currentUserKey = userKey;
+    users[userKey].lastLogin = new Date().toISOString();
+    saveUsers(users);
+    localStorage.setItem(CURRENT_KEY, userKey);
+    if (remember) localStorage.setItem(REMEMBER_KEY, userKey);
+    else localStorage.removeItem(REMEMBER_KEY);
+    showGameScreen();
+  });
+  // Allow Enter key in login fields
+  ['login-username','login-password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn-login').click(); });
+  });
+
+  function clearSignupForm() {
+    ['signup-name','signup-username','signup-password','signup-confirm'].forEach(id=>{ document.getElementById(id).value=''; });
+  }
+  document.getElementById('btn-signup').addEventListener('click', () => {
+    const name     = document.getElementById('signup-name').value.trim();
+    const email    = document.getElementById('signup-username').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirm  = document.getElementById('signup-confirm').value;
+    if (!name)    { setErr('signup-error','Name is required.'); return; }
+    if (!email)   { setErr('signup-error','Email is required.'); return; }
+    if (!email.includes('@')) { setErr('signup-error','Enter a valid email address.'); return; }
+    if (!password){ setErr('signup-error','Password is required.'); return; }
+    if (!confirm) { setErr('signup-error','Please confirm your password.'); return; }
+    if (password !== confirm) { setErr('signup-error','Passwords do not match.'); return; }
+    const userKey = normalizeEmail(email);
+    const users = getUsers();
+    if (users[userKey]) { setErr('signup-error','That email is already registered.'); return; }
+    users[userKey] = {
+      username: email, name, email, password,
+      createdAt: new Date().toISOString(), lastLogin: null,
+      gamesPlayed: 0, highScore: 0, lastScore: 0, totalScore: 0, averageScore: 0, history: []
+    };
+    saveUsers(users);
+    clearSignupForm();
+    document.getElementById('login-username').value = email;
+    showLoginPanel();
+    const errEl = document.getElementById('login-error');
+    errEl.style.color='var(--green)';
+    errEl.textContent='Account created — please log in.';
+    setTimeout(()=>{ errEl.style.color=''; errEl.textContent=''; },3500);
+  });
+  // Allow Enter key in signup fields
+  ['signup-name','signup-username','signup-password','signup-confirm'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn-signup').click(); });
+  });
+
+  document.getElementById('btn-forgot').addEventListener('click', () => {
+    setErr('forgot-error',''); setOk('forgot-success','');
+    const email   = document.getElementById('forgot-email').value.trim();
+    const newpass = document.getElementById('forgot-newpass').value;
+    const confirm = document.getElementById('forgot-confirm').value;
+    if (!email)   { setErr('forgot-error','Email is required.'); return; }
+    if (!newpass) { setErr('forgot-error','New password is required.'); return; }
+    if (newpass !== confirm) { setErr('forgot-error','Passwords do not match.'); return; }
+    const userKey = normalizeEmail(email);
+    const users = getUsers();
+    if (!users[userKey]) { setErr('forgot-error','No account found with that email.'); return; }
+    users[userKey].password = newpass;
+    saveUsers(users);
+    ['forgot-email','forgot-newpass','forgot-confirm'].forEach(id=>{ document.getElementById(id).value=''; });
+    setOk('forgot-success','Password reset! You can now log in.');
+  });
+  ['forgot-email','forgot-newpass','forgot-confirm'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('btn-forgot').click(); });
+  });
+
+  // ── LOGOUT / DELETE ──
+  document.getElementById('logout').addEventListener('click', () => {
+    document.getElementById('logout-confirm-panel').classList.remove('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    closeDialer();
+  });
+  document.getElementById('cancel-logout').addEventListener('click', () => {
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+  });
+  document.getElementById('confirm-logout').addEventListener('click', () => {
+    localStorage.removeItem(CURRENT_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
+    currentUserKey = null; isGuest = false;
+    clearLoginForm();
+    showAuthScreen();
+  });
+  document.getElementById('delete-account').addEventListener('click', () => {
+    document.getElementById('delete-confirm-panel').classList.remove('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    closeDialer();
+  });
+  document.getElementById('cancel-delete-account').addEventListener('click', () => {
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.remove('hidden');
+  });
+  document.getElementById('confirm-delete-account').addEventListener('click', () => {
+    if (!currentUserKey) return;
+    const users = getUsers(); delete users[currentUserKey]; saveUsers(users);
+    localStorage.removeItem(CURRENT_KEY); localStorage.removeItem(REMEMBER_KEY);
+    currentUserKey = null; isGuest = false;
+    clearLoginForm();
+    showAuthScreen();
+    document.getElementById('login-error').style.color='var(--green)';
+    document.getElementById('login-error').textContent='Account deleted.';
+    setTimeout(()=>{ document.getElementById('login-error').style.color=''; document.getElementById('login-error').textContent=''; },3000);
+  });
+
+  // ── PROFILE SAVE ──
+  document.getElementById('btn-save-profile').addEventListener('click', () => {
+    const msgEl = document.getElementById('profile-msg');
+    msgEl.className='profile-msg'; msgEl.textContent='';
+    if (isGuest || !currentUserKey) { msgEl.className='profile-msg err'; msgEl.textContent='Sign in to save profile.'; return; }
+    const user = getCurrentUser();
+    const newName = document.getElementById('profile-name').value.trim();
+    const newPass = document.getElementById('profile-newpass').value;
+    const confPass= document.getElementById('profile-confirmpass').value;
+    if (!newName) { msgEl.className='profile-msg err'; msgEl.textContent='Name cannot be empty.'; return; }
+    if (newPass && newPass !== confPass) { msgEl.className='profile-msg err'; msgEl.textContent='Passwords do not match.'; return; }
+    user.name = newName;
+    if (newPass) user.password = newPass;
+    saveCurrentUser(user);
+    updateUserPanel();
+    document.getElementById('profile-newpass').value='';
+    document.getElementById('profile-confirmpass').value='';
+    msgEl.className='profile-msg ok'; msgEl.textContent='Changes saved!';
+    setTimeout(()=>{ msgEl.textContent=''; },2500);
+  });
+
+  document.getElementById('btn-clear-history').addEventListener('click', () => {
+    if (isGuest || !currentUserKey) return;
+    if (!confirm('Clear all game history? (Scores/stats stay.)')) return;
+    const user = getCurrentUser();
+    user.history = [];
+    saveCurrentUser(user);
+    refreshHistory();
+    const msgEl = document.getElementById('profile-msg');
+    msgEl.className='profile-msg ok'; msgEl.textContent='History cleared.';
+    setTimeout(()=>{ msgEl.textContent=''; },2000);
+  });
+
+  // ── IMPORT / EXPORT ──
+  document.getElementById('btn-export').addEventListener('click', () => {
+    const msgEl = document.getElementById('io-msg');
+    if (isGuest || !currentUserKey) { msgEl.textContent='Sign in to export your data.'; msgEl.style.color='var(--accent)'; return; }
+    const user = getCurrentUser();
+    const blob = new Blob([JSON.stringify({ exportedBy: user.email, exportedAt: new Date().toISOString(), data: user }, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'multiplication-practice-' + (user.email||'data') + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    msgEl.style.color='var(--green)'; msgEl.textContent='Data exported!';
+    setTimeout(()=>{ msgEl.textContent=''; },2500);
+  });
+
+  document.getElementById('btn-import-trigger').addEventListener('click', () => {
+    document.getElementById('import-file-input').click();
+  });
+
+  document.getElementById('import-file-input').addEventListener('change', function() {
+    const msgEl = document.getElementById('io-msg');
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        const importData = parsed.data || parsed;
+        if (!importData.email) throw new Error('Invalid file format.');
+        if (isGuest || !currentUserKey) { msgEl.style.color='var(--accent)'; msgEl.textContent='Sign in to import data.'; return; }
+        const user = getCurrentUser();
+        if (normalizeEmail(importData.email) !== currentUserKey) {
+          msgEl.style.color='var(--accent)'; msgEl.textContent='This file belongs to a different account.'; return;
+        }
+        // Merge history and best stats
+        const merged = Object.assign({}, user, {
+          name: importData.name || user.name,
+          gamesPlayed: Math.max(user.gamesPlayed||0, importData.gamesPlayed||0),
+          highScore: Math.max(user.highScore||0, importData.highScore||0),
+          history: mergeHistory(user.history||[], importData.history||[])
+        });
+        merged.totalScore = (merged.history||[]).reduce((s,h)=>s+h.score,0);
+        merged.averageScore = merged.gamesPlayed ? merged.totalScore / merged.gamesPlayed : 0;
+        saveCurrentUser(merged);
+        updateUserPanel(); refreshHistory(); refreshLeaderboard();
+        msgEl.style.color='var(--green)'; msgEl.textContent='Data imported successfully!';
+      } catch(err) {
+        msgEl.style.color='var(--accent)'; msgEl.textContent='Import failed: ' + err.message;
+      }
+      this.value='';
+      setTimeout(()=>{ msgEl.textContent=''; },3000);
+    };
+    reader.readAsText(file);
+  });
+
+  function mergeHistory(a, b) {
+    const seen = new Set();
+    return [...a, ...b].filter(h => {
+      const key = h.date+'|'+h.score;
+      if (seen.has(key)) return false;
+      seen.add(key); return true;
+    }).sort((x,y)=>new Date(x.date)-new Date(y.date));
+  }
+
+  // ── DISPLAY MODE ──
+  document.getElementById('btn-std').addEventListener('click', () => {
+    document.body.classList.remove('digital');
+    document.getElementById('btn-std').classList.add('active');
+    document.getElementById('btn-digital').classList.remove('active');
+  });
+  document.getElementById('btn-digital').addEventListener('click', () => {
+    document.body.classList.add('digital');
+    document.getElementById('btn-digital').classList.add('active');
+    document.getElementById('btn-std').classList.remove('active');
+  });
+
+  // ── GAME LOGIC ──
+  function genQuestion() {
+    const a = 100 + Math.floor(Math.random()*900);
+    const b = 10  + Math.floor(Math.random()*90);
+    return { a, b, product: a*b };
+  }
+  function buildQuestions() {
+    questions.length=0;
+    for (let i=0;i<TOTAL;i++) questions.push(genQuestion());
+  }
+  function resetSlots() {
+    userAnswer   = Array(5).fill(null);
+    userP1       = Array(4).fill(null);
+    userP2       = Array(5).fill(null);
+    userCarryTop = Array(2).fill(null);
+    userCarryBot = Array(2).fill(null);
+    userCarryAdd = Array(4).fill(null);
+    showAddCarry = false;
+    submitted    = false;
+  }
+  function userAnswerNum() {
+    return userAnswer.reduce((acc,d,i) => {
+      const v = (d===null||d==='X') ? 0 : d;
+      return acc + v * Math.pow(10, 4-i);
+    }, 0);
+  }
+
+  document.getElementById('start-practice').addEventListener('click', startNewGame);
+  document.getElementById('submit').addEventListener('click', onSubmit);
+  document.getElementById('next').addEventListener('click', onNext);
+  document.getElementById('reset').addEventListener('click', onReset);
+  document.getElementById('end-practice').addEventListener('click', endPractice);
+
+  function startNewGame() {
+    buildQuestions();
+    qIdx=0; score=0; resetSlots();
+    document.body.style.justifyContent='flex-start';
+    clearFeedback();
+    document.getElementById('game-title').classList.add('hidden');
+    document.getElementById('user-panel').classList.add('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('game-content').classList.remove('hidden');
+    document.getElementById('gameover').classList.add('hidden');
+    document.getElementById('gameover').innerHTML='';
+    pushRoute(ROUTES.play);
+    render();
+  }
+
+  function endPractice() {
+    resetSlots(); clearFeedback(); showHomeScreenDirect();
+  }
+
+  function clearFeedback() {
+    const fb = document.getElementById('feedback');
+    fb.textContent=''; fb.className='';
+  }
+
+  function onSubmit() {
+    if (submitted) return;
+    submitted = true;
+    const q = questions[qIdx];
+    const userNum = userAnswerNum();
+    const correct = userNum === q.product;
+    if (correct) { score++; updateHighScoreDuringPractice(score); }
+    const fb = document.getElementById('feedback');
+    if (correct) {
+      fb.className='feedback-correct';
+      fb.textContent='✓ Correct!  ' + q.a + ' × ' + q.b + ' = ' + q.product;
+    } else {
+      fb.className='feedback-wrong';
+      fb.textContent='✗ You entered ' + userNum + '. Correct: ' + q.a + ' × ' + q.b + ' = ' + q.product;
+    }
+    render();
+  }
+
+  function onReset() {
+    if (submitted) return;
+    closeDialer(); resetSlots(); clearFeedback(); render();
+  }
+
+  function onNext() {
+    if (!submitted) return;        // ← FIX: was allowing click when not submitted
+    closeDialer();
+    if (qIdx < TOTAL - 1) {
+      qIdx++; resetSlots(); clearFeedback(); render();
+    } else {
+      showGameOver();
+    }
+  }
+
+  function updateHighScoreDuringPractice(s) {
+    if (isGuest || !currentUserKey) return;
+    const user = getCurrentUser();
+    if (!user || s <= user.highScore) return;
+    user.highScore = s; saveCurrentUser(user); updateUserPanel();
+  }
+
+  function completeGameForCurrentUser(finalScore) {
+    if (isGuest || !currentUserKey) return;
+    const user = getCurrentUser();
+    if (!user) return;
+    user.gamesPlayed = (user.gamesPlayed||0) + 1;
+    user.lastScore = finalScore;
+    user.highScore = Math.max(user.highScore||0, finalScore);
+    user.totalScore = (user.totalScore||0) + finalScore;
+    user.averageScore = user.totalScore / user.gamesPlayed;
+    if (!user.history) user.history = [];
+    user.history.push({ date: new Date().toISOString(), score: finalScore });
+    if (user.history.length > 200) user.history = user.history.slice(-200);
+    saveCurrentUser(user);
+    updateUserPanel();
+  }
+
+  function showGameOver() {
+    completeGameForCurrentUser(score);
+    const pct = Math.round((score/TOTAL)*100);
+    let msg = 'Keep practicing!';
+    if (pct===100) msg='Perfect score! 🌟';
+    else if (pct>=70) msg='Great job!';
+    else if (pct>=40) msg='Keep at it!';
+    closeDialer();
+    document.getElementById('game-title').classList.remove('hidden');
+    document.getElementById('user-panel').classList.remove('hidden');
+    document.getElementById('delete-confirm-panel').classList.add('hidden');
+    document.getElementById('logout-confirm-panel').classList.add('hidden');
+    document.getElementById('home-panel').classList.add('hidden');
+    document.getElementById('game-content').classList.add('hidden');
+    const gameover = document.getElementById('gameover');
+    gameover.classList.remove('hidden');
+    gameover.innerHTML =
+      '<h1>All Done!</h1>' +
+      '<div class="final-score">Score: <strong>' + score + '</strong> / ' + TOTAL + '</div>' +
+      '<div class="gameover-msg">' + msg + '</div>' +
+      '<div class="gameover-actions">' +
+        '<button id="play-again" type="button">Play Again</button>' +
+        '<button class="btn-home" id="go-home" type="button">Home</button>' +
+      '</div>';
+    document.getElementById('play-again').addEventListener('click', startNewGame);
+    document.getElementById('go-home').addEventListener('click', () => {
+      updateUserPanel();
+      showHomeScreenDirect();
+    });
+    document.body.style.justifyContent='center';
+    pushRoute(ROUTES.gameover);
+  }
+
+  // ── RENDER ──
+  function render() {
+    const q = questions[qIdx];
+    const aDigits = String(q.a).split('');
+    const bDigits = String(q.b).split('');
+    document.getElementById('qnum').textContent = qIdx+1;
+    document.getElementById('score').textContent = score;
+
+    // Button states — FIX: reset button disabled only when submitted; next only enabled when submitted
+    document.getElementById('submit').disabled = submitted;
+    document.getElementById('reset').disabled  = submitted;
+    document.getElementById('next').disabled   = !submitted;
+
+    const ws = document.getElementById('worksheet');
+    ws.innerHTML='';
+    const grid = document.createElement('div');
+    grid.className='grid';
+    ws.appendChild(grid);
+
+    const place = (el,col,row) => {
+      el.style.gridColumn=String(col);
+      el.style.gridRow=String(row);
+      grid.appendChild(el); return el;
+    };
+
+    const makeCarry = (arr,idx,extra) => {
+      const c=document.createElement('div');
+      let cls='carry'+(extra?' '+extra:'')+(submitted?' locked':'');
+      if(arr[idx]==='X') cls+=' x-value';
+      c.className=cls;
+      if(arr[idx]!==null) c.textContent=arr[idx];
+      c.addEventListener('click',e=>{ if(submitted)return; openDialer(e,arr,idx,render); });
+      return c;
+    };
+    const makeFixed=text=>{ const c=document.createElement('div'); c.className='cell fixed'; c.textContent=text; return c; };
+    const makeOp=text=>{ const c=document.createElement('div'); c.className='cell op'; c.textContent=text; return c; };
+    const makeInput=(arr,idx,opts={})=>{
+      const c=document.createElement('div');
+      let cls='cell';
+      if(arr[idx]!==null) cls+=' filled';
+      if(arr[idx]==='X') cls+=' x-value';
+      if(submitted) cls+=' locked';
+      c.className=cls;
+      if(arr[idx]!==null) c.textContent=arr[idx];
+      if(submitted&&opts.isAnswer) {
+        const correct=userAnswerNum()===q.product;
+        c.classList.add(correct?'answer-correct':'answer-wrong');
+      }
+      c.addEventListener('click',e=>{ if(submitted)return; openDialer(e,arr,idx,render); });
+      return c;
+    };
+
+    for(let i=0;i<2;i++) place(makeCarry(userCarryTop,i),4+i,1);
+    for(let i=0;i<2;i++) place(makeCarry(userCarryBot,i),4+i,2);
+    for(let i=0;i<3;i++) place(makeFixed(aDigits[i]),4+i,3);
+    place(makeOp('×'),4,4);
+    for(let i=0;i<2;i++) place(makeFixed(bDigits[i]),5+i,4);
+
+    const line1=document.createElement('div'); line1.className='line-row';
+    line1.style.gridColumn='1 / -1'; line1.style.gridRow='5'; grid.appendChild(line1);
+
+    const carryToggle=document.createElement('button');
+    carryToggle.className='carry-toggle'+(showAddCarry?' active':'');
+    carryToggle.textContent=showAddCarry?'▴':'▾';
+    carryToggle.title=showAddCarry?'Hide addition carries':'Show addition carries';
+    carryToggle.addEventListener('click',e=>{ e.stopPropagation(); showAddCarry=!showAddCarry; render(); });
+    place(carryToggle,1,6);
+    if(showAddCarry) for(let i=0;i<4;i++) place(makeCarry(userCarryAdd,i,'add'),2+i,6);
+    for(let i=0;i<4;i++) place(makeInput(userP1,i),3+i,7);
+    place(makeOp('+'),1,8);
+    for(let i=0;i<4;i++) place(makeInput(userP2,i),2+i,8);
+    place(makeInput(userP2,4),6,8);
+
+    const line2=document.createElement('div'); line2.className='line-row';
+    line2.style.gridColumn='1 / -1'; line2.style.gridRow='9'; grid.appendChild(line2);
+
+    for(let i=0;i<5;i++) place(makeInput(userAnswer,i,{isAnswer:true}),2+i,10);
+  }
+
+  // ── DIALER ──
+  function openDialer(e, arr, idx, onSet) {
+    const dialer=document.getElementById('dialer');
+    dialer.innerHTML='';
+    [
+      {label:'1',val:1},{label:'2',val:2},{label:'3',val:3},
+      {label:'4',val:4},{label:'5',val:5},{label:'6',val:6},
+      {label:'7',val:7},{label:'8',val:8},{label:'9',val:9},
+      {label:'X',val:'X',cls:'x-btn'},{label:'0',val:0},{label:'←',val:null,cls:'back-btn'}
+    ].forEach(({label,val,cls})=>{
+      const b=document.createElement('button');
+      b.textContent=label; if(cls) b.className=cls;
+      b.addEventListener('click',ev=>{ ev.stopPropagation(); arr[idx]=val; closeDialer(); onSet(); });
+      dialer.appendChild(b);
+    });
+    dialer.style.left='-9999px'; dialer.style.top='-9999px'; dialer.style.display='grid';
+    const rect=e.currentTarget.getBoundingClientRect();
+    const dw=dialer.offsetWidth, dh=dialer.offsetHeight;
+    let left=rect.left+rect.width/2-dw/2, top=rect.bottom+8;
+    if(left+dw>window.innerWidth-6) left=window.innerWidth-dw-6;
+    if(left<6) left=6;
+    if(top+dh>window.innerHeight-6) top=rect.top-dh-8;
+    if(top<6) top=6;
+    dialer.style.left=left+'px'; dialer.style.top=top+'px';
+    e.stopPropagation();
+  }
+  function closeDialer() { document.getElementById('dialer').style.display='none'; }
+  document.addEventListener('click',e=>{ const d=document.getElementById('dialer'); if(d.style.display!=='none'&&!d.contains(e.target)) closeDialer(); });
+  window.addEventListener('resize',closeDialer);
+  window.addEventListener('scroll',closeDialer,true);
+
+  // ── UTILITY ──
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ── BOOT ──
+  const rememberedUser = localStorage.getItem(REMEMBER_KEY);
+  const users = getUsers();
+  if (rememberedUser && users[rememberedUser]) {
+    isGuest=false; currentUserKey=rememberedUser;
+    showGameScreen();
+  } else {
+    localStorage.removeItem(CURRENT_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
+    showAuthScreen();
+  }
+})();
+</script>
+</body>
+</html>
